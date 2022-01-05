@@ -14,6 +14,7 @@
 		2A93014327859236005D01A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A93013127859236005D01A8 /* Assets.xcassets */; };
 		2A93014427859236005D01A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A93013127859236005D01A8 /* Assets.xcassets */; };
 		2A93015227859310005D01A8 /* SwiftUIList in Frameworks */ = {isa = PBXBuildFile; productRef = 2A93015127859310005D01A8 /* SwiftUIList */; };
+		2A9301562785CE72005D01A8 /* SwiftUIListCell in Frameworks */ = {isa = PBXBuildFile; productRef = 2A9301552785CE72005D01A8 /* SwiftUIListCell */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A9301562785CE72005D01A8 /* SwiftUIListCell in Frameworks */,
 				2A93015227859310005D01A8 /* SwiftUIList in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -135,6 +137,7 @@
 			name = "Example (macOS)";
 			packageProductDependencies = (
 				2A93015127859310005D01A8 /* SwiftUIList */,
+				2A9301552785CE72005D01A8 /* SwiftUIListCell */,
 			);
 			productName = "Example (macOS)";
 			productReference = 2A93013C27859236005D01A8 /* Example.app */;
@@ -484,6 +487,10 @@
 		2A93015127859310005D01A8 /* SwiftUIList */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SwiftUIList;
+		};
+		2A9301552785CE72005D01A8 /* SwiftUIListCell */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftUIListCell;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

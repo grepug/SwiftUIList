@@ -15,7 +15,7 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
     let updater = ListViewUpdater<Data>()
     
     init(data: Data,
-         content: @escaping (Data.Element) -> NSView,
+         content: @escaping ListItemContentType<Data>,
          contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?,
          selectionChanged: @escaping (Data.Element?) -> Void) {
         let items: [ListItem<Data>] = data.map { .init($0) }
@@ -50,25 +50,47 @@ extension ListViewController {
     func updateData(newValue: Data) {
         let newState: [ListItem<Data>] = newValue.map { .init($0) }
 
-//        tableView.beginUpdates()
+        tableView.beginUpdates()
 
         let oldState = dataSource.items
         dataSource.items = newState
         delegate.items = newState
-        
-        print("count2", newState.count, oldState.count)
         
         updater.performUpdates(
             tableView: tableView,
             oldState: oldState,
             newState: newState)
 
-//        tableView.endUpdates()
+        tableView.endUpdates()
     }
     
     func changeSelectedItem(to item: Data.Element?) {
         delegate.changeSelectedItem(
             to: item.map { ListItem($0) },
             in: tableView)
+    }
+    
+    func setupColumns(_ columns: [ListItemColumn]) {
+        guard tableView.tableColumns.isEmpty else { return }
+        
+        for item in columns {
+            let column = NSTableColumn(identifier: .init(rawValue: item.id))
+            column.title = item.title
+            if let width = item.width {
+                column.width = width
+            }
+            if let fixedWidth = item.fixedWidth {
+                column.minWidth = fixedWidth
+                column.maxWidth = fixedWidth
+            }
+            if let maxWidth = item.maxWidth {
+                column.maxWidth = maxWidth
+            }
+            if let minWidth = item.minWidth {
+                column.minWidth = minWidth
+            }
+            
+            tableView.addTableColumn(column)
+        }
     }
 }

@@ -19,24 +19,19 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: Identifiable {
             return
         }
         
-//        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0.id == $1.id })
-//
-//        if !diff.isEmpty || oldState != newState {
-//
-//        }
+        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0.id == $1.id })
         
-        tableView.reloadDataWithDiff(before: oldState ?? [], current: newState ?? [])
+        if !diff.isEmpty || oldState != newState {
+            
+        }
         
-//        for change in diff {
-//            switch change {
-//            case .insert(offset: let offset, _, _):
-//                print("diff insert", offset)
-//                tableView.insertRows(at: [offset], withAnimation: .effectFade)
-//            case .remove(offset: let offset, _, _):
-//                tableView.removeRows(at: [offset], withAnimation: .effectFade)
-//            }
-//        }
-        
-//        print("update", diff.count)
+        for change in diff {
+            switch change {
+            case .insert(offset: let offset, _, _):
+                tableView.insertRows(at: [offset], withAnimation: .effectFade)
+            case .remove(offset: let offset, _, _):
+                tableView.removeRows(at: [offset], withAnimation: .effectFade)
+            }
+        }
     }
 }

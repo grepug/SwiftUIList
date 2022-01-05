@@ -10,6 +10,7 @@ import AppKit
 class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
     var items: [ListItem<Data>]
     var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
+    var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
     private var contextMenuActions = [String: () -> Void]()
     
@@ -18,10 +19,6 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
         self.items = items
         self.contextMenus = contextMenus
         super.init(frame: .zero)
-        
-        let column = NSTableColumn()
-        column.title = "a"
-        self.addTableColumn(column)
     }
     
     required init?(coder: NSCoder) {
@@ -77,12 +74,12 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
         super.mouseDown(with: event)
         
         let row = row(for: event)
-//        let col = column(for: event)
+        let col = column(for: event)
         
         guard row > -1 else { return }
         
         if event.clickCount == 2 {
-//            vm.doubledClickedSubject.send((data[row], col))
+            onDoubleClicked?(row, col, rowView(atRow: row, makeIfNecessary: false)!)
         }
         
         if !contextualRect.isEmpty {

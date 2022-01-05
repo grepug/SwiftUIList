@@ -5,12 +5,15 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftUIList",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v11)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "SwiftUIList",
             targets: ["SwiftUIList"]),
+        .library(
+            name: "SwiftUIListCell",
+            targets: ["SwiftUIListCell"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -22,6 +25,9 @@ let package = Package(
         .target(
             name: "SwiftUIList",
             dependencies: []),
+        .target(
+            name: "SwiftUIListCell",
+            path: "Sources/SwiftUIListCell"),
         .testTarget(
             name: "SwiftUIListTests",
             dependencies: ["SwiftUIList"]),

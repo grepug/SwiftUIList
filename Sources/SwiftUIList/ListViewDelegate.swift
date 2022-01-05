@@ -9,12 +9,12 @@ import AppKit
 
 class ListViewDelegate<Data: Sequence>: NSObject, NSTableViewDelegate where Data.Element: Identifiable {
     var items: [ListItem<Data>]
-    let content: (Data.Element) -> NSView
+    let content: ListItemContentType<Data>
     let selectionChanged: (Data.Element?) -> Void
     var selectedItem: ListItem<Data>?
     
     init(items: [ListItem<Data>],
-         content: @escaping (Data.Element) -> NSView,
+         content: @escaping ListItemContentType<Data>,
          selectionChanged: @escaping (Data.Element?) -> Void) {
         self.items = items
         self.content = content
@@ -24,7 +24,10 @@ class ListViewDelegate<Data: Sequence>: NSObject, NSTableViewDelegate where Data
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        content(item(at: row).value)
+        let tableView = tableView as! TableView<Data>
+        let column = tableView.tableColumns.firstIndex(of: tableColumn!)!
+        
+        return content(row, column, item(at: row).value)
     }
     
     func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {
