@@ -57,18 +57,23 @@ public struct TextForCell: CellWrappable {
 
 public struct TextValidator {
     var isValid: (String) -> Bool
+    var formatted: (String) -> String
 }
 
 public extension TextValidator {
     static var int: Self {
         .init { string in
             string.isNumber || string.isEmpty
+        } formatted: { string in
+            String(Int(string) ?? 0)
         }
     }
     
     static var double: Self {
         .init { string in
             string.isNumber || string.isEmpty
+        } formatted: { string in
+            String(Double(string) ?? 0)
         }
     }
 }
@@ -133,8 +138,14 @@ struct TextForCellView: NSViewRepresentable {
             if !isValid {
                 textField.stringValue = text
             } else {
-                onChange(textField.stringValue)
-                text = textField.stringValue
+                let formatted = validator?.formatted(textField.stringValue) ?? textField.stringValue
+                
+                onChange(formatted)
+                text = formatted
+                
+                if formatted != textField.stringValue {
+                    textField.stringValue = formatted
+                }
             }
         }
     }
