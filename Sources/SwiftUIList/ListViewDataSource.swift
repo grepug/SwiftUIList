@@ -7,7 +7,7 @@
 
 import AppKit
 
-class ListViewDataSource<Data: Sequence>: NSObject, NSTableViewDataSource where Data.Element: Identifiable {
+class ListViewDataSource<Data: Sequence>: NSObject, NSTableViewDataSource where Data.Element: DataElement {
     var items: [ListItem<Data>] = []
     
     func numberOfRows(in tableView: NSTableView) -> Int {

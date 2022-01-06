@@ -11,7 +11,9 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View {
-    @State var data: [Item] = [.init(title: "1"), .init(title: "2"), .init(title: "3")]
+    @State var data: [Item] = [.init(title: "1",
+                                     children: [.init(title: "a",
+                                                      children: [.init(title: "b")])])]
     @State var selection: Item?
     
     @State var selection2 = Set<Item>()
@@ -19,6 +21,7 @@ struct ContentView: View {
     var body: some View {
         SwiftUIList($data,
                     selection: $selection2,
+                    children: \.children,
                     content: content)
         .contextMenu(menu: { row, col, item in
             [.init(title: "a") {
@@ -56,4 +59,6 @@ struct Item: Identifiable, Hashable {
     var score = 0
     
     var id: String { title }
+    
+    var children: [Item]?
 }

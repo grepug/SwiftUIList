@@ -1,16 +1,12 @@
 import SwiftUI
 import AppKit
 
-public typealias DataElement = Identifiable & Hashable
-public typealias ListItemContentType<Data: Sequence> = (Int, Int, Binding<Data.Element>) -> NSView where Data.Element: DataElement
-
-typealias SelectionChanged<Data: Sequence> = (Set<Data.Element>) -> Void where Data.Element: DataElement
-
 public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where Data.Element: DataElement {
     public typealias NSViewControllerType = ListViewController<Data>
     
     @Binding var data: Data
     @Binding var selection: Set<Data.Element>
+    var childrenKeyPath: ChildrenKeyPath<Data>?
     var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Data>
@@ -56,24 +52,27 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     
     public init(_ data: Binding<Data>,
                 selection: Binding<Set<Data.Element>>,
+                children: ChildrenKeyPath<Data>? = nil,
                 content: @escaping ListItemContentType<Data>) {
         self._data = data
         self._selection = selection
         self.content = content
+        self.childrenKeyPath = children
         self.allowingMultipleSelection = true
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
         .init(data: data,
+              childrenKeyPath: childrenKeyPath,
               content: content,
               contextMenus: contextMenus,
               selectionChanged: { selection = $0 })
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
-        nsViewController.updateData(newValue: data)
-        nsViewController.changeSelectedItem(to: selection)
         nsViewController.setupColumns(columns)
+        nsViewController.updateData(newValue: data, children: childrenKeyPath)
+        nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
         

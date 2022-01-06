@@ -7,7 +7,7 @@
 
 import AppKit
 
-class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
+class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
     var items: [ListItem<Data>]
     var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
@@ -72,7 +72,7 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
         
         guard row > -1 else { return nil }
         
-        let item = items[row]
+        let item = item(atRow: row) as! ListItem<Data>
         let contextMenus = contextMenus?(item.value, row, col) ?? []
         let menu = makeContextMenu(contextMenus: contextMenus, menu: NSMenu(title: ""))
         

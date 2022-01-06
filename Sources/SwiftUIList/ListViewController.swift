@@ -10,17 +10,18 @@ import SwiftUI
 
 public class ListViewController<Data: Sequence>: NSViewController where Data.Element: DataElement {
     let tableView: TableView<Data>
-    let dataSource: ListViewDataSource<Data>
-    let delegate: ListViewDelegate<Data>
+    let dataSource: OutlineViewDataSource<Data>
+    let delegate: OutlineViewDelegate<Data>
     let updater = ListViewUpdater<Data>()
     
     init(data: Data,
+         childrenKeyPath: ChildrenKeyPath<Data>?,
          content: @escaping ListItemContentType<Data>,
          contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?,
          selectionChanged: @escaping SelectionChanged<Data>) {
-        let items: [ListItem<Data>] = data.map { .init($0) }
-        tableView = TableView(items: items, contextMenus: contextMenus)
+        let items: [ListItem<Data>] = data.map { .init($0, children: childrenKeyPath) }
         
+        tableView = TableView(items: items, contextMenus: contextMenus)
         dataSource = .init()
         delegate = .init(items: items,
                          content: content,
@@ -35,6 +36,8 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
         tableView.dataSource = dataSource
         tableView.delegate = delegate
         tableView.rowSizeStyle = .default
+        tableView.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        tableView.autoresizesOutlineColumn = false
     }
     
     required init?(coder: NSCoder) {
@@ -44,11 +47,19 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
     public override func loadView() {
         view = NSScrollView(frame: .zero)
     }
+    
+    public override func viewWillAppear() {
+        // Size the column to take the full width. This combined with
+        // the uniform column autoresizing style allows the column to
+        // adjust its width with a change in width of the outline view.
+        tableView.sizeLastColumnToFit()
+        super.viewWillAppear()
+    }
 }
 
 extension ListViewController {
-    func updateData(newValue: Data) {
-        let newState: [ListItem<Data>] = newValue.map { .init($0) }
+    func updateData(newValue: Data, children: ChildrenKeyPath<Data>?) {
+        let newState: [ListItem<Data>] = newValue.map { .init($0, children: children) }
 
         tableView.beginUpdates()
 
@@ -59,7 +70,8 @@ extension ListViewController {
         updater.performUpdates(
             tableView: tableView,
             oldState: oldState,
-            newState: newState)
+            newState: newState,
+            parent: nil)
 
         tableView.endUpdates()
     }
