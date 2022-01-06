@@ -15,9 +15,9 @@ public extension SwiftUIList {
         return mutableSelf
     }
     
-    func contextMenu(menu: @escaping (Data.Element, Int, Int) -> [ListItemContextMenu]) -> Self {
+    func contextMenu(menu: @escaping ContextMenu<Data>) -> Self {
         var mutableSelf = self
-        mutableSelf.contextMenus = menu
+        mutableSelf.contextMenu = menu
         
         return mutableSelf
     }

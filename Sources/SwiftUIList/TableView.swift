@@ -9,15 +9,15 @@ import AppKit
 
 class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
     var items: [ListItem<Data>]
-    var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
+    var contextMenu: ContextMenu<Data>?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
     private var contextMenuActions = [String: () -> Void]()
     
     init(items: [ListItem<Data>],
-         contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])? = nil) {
+         contextMenu: ((Data.Element, Int, Int) -> [ListItemContextMenu])? = nil) {
         self.items = items
-        self.contextMenus = contextMenus
+        self.contextMenu = contextMenu
         super.init(frame: .zero)
     }
     
@@ -73,8 +73,8 @@ class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
         guard row > -1 else { return nil }
         
         let item = item(atRow: row) as! ListItem<Data>
-        let contextMenus = contextMenus?(item.value, row, col) ?? []
-        let menu = makeContextMenu(contextMenus: contextMenus, menu: NSMenu(title: ""))
+        let contextMenu = contextMenu?(item.value, row, col) ?? []
+        let menu = makeContextMenu(contextMenu: contextMenu, menu: NSMenu(title: ""))
         
         return menu
     }
@@ -119,11 +119,11 @@ class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
 }
 
 private extension TableView {
-    func makeContextMenu(contextMenus: [ListItemContextMenu], menu: NSMenu) -> NSMenu {
-        for item in contextMenus {
+    func makeContextMenu(contextMenu: [ListItemContextMenu], menu: NSMenu) -> NSMenu {
+        for item in contextMenu {
             if let children = item.children {
                 let menuItem = NSMenuItem(title: item.title, action: nil, keyEquivalent: "")
-                let childMenu = makeContextMenu(contextMenus: children, menu: .init(title: ""))
+                let childMenu = makeContextMenu(contextMenu: children, menu: .init(title: ""))
                 menuItem.submenu = childMenu
                 
                 menu.addItem(menuItem)

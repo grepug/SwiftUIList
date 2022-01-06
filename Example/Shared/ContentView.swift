@@ -30,7 +30,8 @@ struct ContentView: View {
         .columns([
             .init(title: "值"),
             .init(title: "时间"),
-            .init(title: "备忘")
+            .init(title: "备忘"),
+            .init(title: "已完成")
         ])
         .usesAlternatingRowBackgroundColors()
         .onDoubleClick { row, col, view in
@@ -48,15 +49,17 @@ struct ContentView: View {
         case 0: return TextForCell(item.title, textValidator: .int).nsView
         case 1: return TextForCell(item.score).nsView
         case 2: return DatePickerCell(date: item.date).nsView
+        case 3: return ToggleCell(isOn: item.finished).nsView
         default: fatalError()
         }
     }
 }
 
-struct Item: Identifiable, Hashable {
+struct Item: DataElement {
     var title: String
     var date: Date = Date()
     var score = 0
+    var finished = false
     
     var id: String { title }
     

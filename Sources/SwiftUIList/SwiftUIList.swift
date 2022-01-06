@@ -7,7 +7,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     @Binding var data: Data
     @Binding var selection: Set<Data.Element>
     var childrenKeyPath: ChildrenKeyPath<Data>?
-    var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
+    var contextMenu: ContextMenu<Data>?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Data>
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
@@ -65,7 +65,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
         .init(data: data,
               childrenKeyPath: childrenKeyPath,
               content: content,
-              contextMenus: contextMenus,
+              contextMenu: contextMenu,
               selectionChanged: { selection = $0 })
     }
     

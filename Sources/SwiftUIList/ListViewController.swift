@@ -17,11 +17,11 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
     init(data: Data,
          childrenKeyPath: ChildrenKeyPath<Data>?,
          content: @escaping ListItemContentType<Data>,
-         contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?,
+         contextMenu: ContextMenu<Data>?,
          selectionChanged: @escaping SelectionChanged<Data>) {
         let items: [ListItem<Data>] = data.map { .init($0, children: childrenKeyPath) }
         
-        tableView = TableView(items: items, contextMenus: contextMenus)
+        tableView = TableView(items: items, contextMenu: contextMenu)
         dataSource = .init()
         delegate = .init(items: items,
                          content: content,

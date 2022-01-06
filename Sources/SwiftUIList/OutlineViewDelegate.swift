@@ -12,7 +12,8 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
     var items: [ListItem<Data>]
     let content: ListItemContentType<Data>
     let selectionChanged: SelectionChanged<Data>
-    var selectedItems: Set<ListItem<Data>>
+    
+    private var selectedItems: Set<ListItem<Data>>
     
     init(items: [ListItem<Data>],
          content: @escaping ListItemContentType<Data>,
@@ -139,5 +140,9 @@ private extension OutlineViewDelegate {
         }
         
         return false
+    }
+    
+    func updateNewItem(id: Data.Element.ID, item: Data.Element) {
+        
     }
 }
