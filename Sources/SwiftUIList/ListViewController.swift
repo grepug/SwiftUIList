@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-public class ListViewController<Data: Sequence>: NSViewController where Data.Element: Identifiable {
+public class ListViewController<Data: Sequence>: NSViewController where Data.Element: DataElement {
     let tableView: TableView<Data>
     let dataSource: ListViewDataSource<Data>
     let delegate: ListViewDelegate<Data>
@@ -17,7 +17,7 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
     init(data: Data,
          content: @escaping ListItemContentType<Data>,
          contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?,
-         selectionChanged: @escaping (Data.Element?) -> Void) {
+         selectionChanged: @escaping SelectionChanged<Data>) {
         let items: [ListItem<Data>] = data.map { .init($0) }
         tableView = TableView(items: items, contextMenus: contextMenus)
         
@@ -64,9 +64,9 @@ extension ListViewController {
         tableView.endUpdates()
     }
     
-    func changeSelectedItem(to item: Data.Element?) {
+    func changeSelectedItem(to item: Set<Data.Element>) {
         delegate.changeSelectedItem(
-            to: item.map { ListItem($0) },
+            to: Set(item.map { ListItem($0) }),
             in: tableView)
     }
     

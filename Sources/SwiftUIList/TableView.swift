@@ -34,7 +34,7 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
             // Draw the highlight.
             let rectPath = NSBezierPath(rect: contextualRect)
             let fillColor = NSColor.controlAccentColor
-            rectPath.lineWidth = 5
+            rectPath.lineWidth = 4
             fillColor.set()
             rectPath.stroke()
         }
@@ -48,7 +48,16 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
  
         let targetRow = row(at: convert(event.locationInWindow, from: nil))
         if targetRow != -1 {
-            contextualRect = rect(ofRow: targetRow)
+            let rect = rect(ofRow: targetRow)
+            
+            if targetRow % 2 == 0 {
+                contextualRect = rect
+            } else {
+                contextualRect = .init(x: rect.origin.x,
+                                       y: rect.origin.y - 2.5,
+                                       width: rect.width,
+                                       height: rect.height + 5)
+            }
             
             let selectedRowFrame = frameOfCell(atColumn: 0, row: selectedRow)
             if contextualRect.intersects(selectedRowFrame) {

@@ -1,13 +1,16 @@
 import SwiftUI
 import AppKit
 
-public typealias ListItemContentType<Data: Sequence> = (Int, Int, Binding<Data.Element>) -> NSView where Data.Element: Identifiable
+public typealias DataElement = Identifiable & Hashable
+public typealias ListItemContentType<Data: Sequence> = (Int, Int, Binding<Data.Element>) -> NSView where Data.Element: DataElement
 
-public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where Data.Element: Identifiable {
+typealias SelectionChanged<Data: Sequence> = (Set<Data.Element>) -> Void where Data.Element: DataElement
+
+public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where Data.Element: DataElement {
     public typealias NSViewControllerType = ListViewController<Data>
     
     @Binding var data: Data
-    @Binding var selection: Data.Element?
+    @Binding var selection: Set<Data.Element>
     var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Data>
@@ -15,21 +18,49 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     var hidingHeader = false
     var usingAlternatingRowBackgroundColors = false
     var drawingRowSeperators = false
+    var allowingMultipleSelection = false
     
     public init(_ data: Data,
                 selection: Binding<Data.Element?>,
                 content: @escaping ListItemContentType<Data>) {
-        self._data = .constant(data)
-        self._selection = selection
+        self._selection = .init {
+            if let sel = selection.wrappedValue {
+                return Set([sel])
+            }
+            
+            return Set()
+        } set: { newValue in
+            selection.wrappedValue = newValue.first
+        }
+        
         self.content = content
+        self._data = .constant(data)
     }
     
     public init(_ data: Binding<Data>,
                 selection: Binding<Data.Element?>,
                 content: @escaping ListItemContentType<Data>) {
+        self._selection = .init {
+            if let sel = selection.wrappedValue {
+                return Set([sel])
+            }
+            
+            return Set()
+        } set: { newValue in
+            selection.wrappedValue = newValue.first
+        }
+        
+        self.content = content
+        self._data = data
+    }
+    
+    public init(_ data: Binding<Data>,
+                selection: Binding<Set<Data.Element>>,
+                content: @escaping ListItemContentType<Data>) {
         self._data = data
         self._selection = selection
         self.content = content
+        self.allowingMultipleSelection = true
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
@@ -48,6 +79,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
         
         nsViewController.tableView.gridColor = .gridColor
         nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []
+        nsViewController.tableView.allowsMultipleSelection = allowingMultipleSelection
         
         if hidingHeader {
             nsViewController.tableView.headerView = nil
