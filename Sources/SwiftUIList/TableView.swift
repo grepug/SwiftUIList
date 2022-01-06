@@ -79,7 +79,9 @@ class TableView<Data: Sequence>: NSTableView where Data.Element: Identifiable {
         guard row > -1 else { return }
         
         if event.clickCount == 2 {
-            onDoubleClicked?(row, col, rowView(atRow: row, makeIfNecessary: false)!)
+            let view = view(atColumn: col, row: row, makeIfNecessary: false)!
+            
+            onDoubleClicked?(row, col, view)
         }
         
         if !contextualRect.isEmpty {

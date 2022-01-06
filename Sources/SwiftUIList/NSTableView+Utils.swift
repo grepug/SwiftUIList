@@ -49,14 +49,4 @@ extension NSTableView {
     }
 }
 
-public extension NSView {
-    func subviews<T: NSView>(ofType type: T.Type) -> [T] {
-        var result = subviews.compactMap { $0 as? T }
-        
-        for sub in subviews {
-            result.append(contentsOf: sub.subviews(ofType: type))
-        }
-        
-        return result
-    }
-}
+

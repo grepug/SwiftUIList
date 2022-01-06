@@ -1,12 +1,12 @@
 import SwiftUI
 import AppKit
 
-public typealias ListItemContentType<Data: Sequence> = (Int, Int, Data.Element) -> NSView where Data.Element: Identifiable
+public typealias ListItemContentType<Data: Sequence> = (Int, Int, Binding<Data.Element>) -> NSView where Data.Element: Identifiable
 
 public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where Data.Element: Identifiable {
     public typealias NSViewControllerType = ListViewController<Data>
     
-    let data: Data
+    @Binding var data: Data
     @Binding var selection: Data.Element?
     var contextMenus: ((Data.Element, Int, Int) -> [ListItemContextMenu])?
     var columns: [ListItemColumn] = [.init(title: "")]
@@ -17,7 +17,15 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     public init(_ data: Data,
                 selection: Binding<Data.Element?>,
                 content: @escaping ListItemContentType<Data>) {
-        self.data = data
+        self._data = .constant(data)
+        self._selection = selection
+        self.content = content
+    }
+    
+    public init(_ data: Binding<Data>,
+                selection: Binding<Data.Element?>,
+                content: @escaping ListItemContentType<Data>) {
+        self._data = data
         self._selection = selection
         self.content = content
     }

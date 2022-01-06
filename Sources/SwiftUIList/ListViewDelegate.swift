@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftUI
 
 class ListViewDelegate<Data: Sequence>: NSObject, NSTableViewDelegate where Data.Element: Identifiable {
     var items: [ListItem<Data>]
@@ -26,8 +27,13 @@ class ListViewDelegate<Data: Sequence>: NSObject, NSTableViewDelegate where Data
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let tableView = tableView as! TableView<Data>
         let column = tableView.tableColumns.firstIndex(of: tableColumn!)!
+        let binding = Binding<Data.Element> {
+            self.item(at: row).value
+        } set: { newValue in
+            self.items[row].value = newValue
+        }
         
-        return content(row, column, item(at: row).value)
+        return content(row, column, binding)
     }
     
     func tableView(_ tableView: NSTableView, heightOfRow row: Int) -> CGFloat {

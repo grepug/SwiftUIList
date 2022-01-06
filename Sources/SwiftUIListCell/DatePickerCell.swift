@@ -5,36 +5,31 @@
 //  Created by Kai on 2022/1/5.
 //
 
+import SwiftUI
 import AppKit
+import Combine
 
-public class DatePickerCell: NSTableCellView {
-    public init(date: Date) {
-        let field = NSDatePicker()
-        field.datePickerStyle = .textField
-        field.isBezeled = false
-        field.cell?.isScrollable = false
-//        field.isEditable = false
-//        field.isSelectable = false
-//        field.isBezeled = false
-//        field.drawsBackground = false
-//        field.usesSingleLineMode = false
-//        field.cell?.wraps = true
-//        field.cell?.isScrollable = false
-
-        super.init(frame: .zero)
-
-        addSubview(field)
-        field.translatesAutoresizingMaskIntoConstraints = false
-        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        NSLayoutConstraint.activate([
-            field.leadingAnchor.constraint(equalTo: leadingAnchor),
-            field.trailingAnchor.constraint(equalTo: trailingAnchor),
-            field.topAnchor.constraint(equalTo: topAnchor),
-            field.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ])
+public struct DatePickerCell: CellWrappable {
+    @Binding var date: Date
+    
+    public let doubleClickSubject = PassthroughSubject<Void, Never>()
+    @State public var isEditing = false
+    
+    public init(date: Binding<Date>) {
+        self._date = date
     }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    
+    public var body: some View {
+        if #available(macOS 12.0, *) {
+            TextForCell(date.formatted(date: .numeric, time: .shortened))
+                .popover(isPresented: $isEditing) {
+                    DatePicker("", selection: $date)
+                }
+                .onReceive(doubleClickSubject) { _ in
+                    isEditing = true
+                }
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
