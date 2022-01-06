@@ -11,7 +11,7 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View {
-    @State var data: [Item] = [.init(title: "1")]
+    @State var data: [Item] = [.init(title: "1"), .init(title: "2"), .init(title: "3")]
     @State var selection: Item?
     
     var body: some View {
@@ -27,6 +27,7 @@ struct ContentView: View {
             .init(title: "时间"),
             .init(title: "备忘")
         ])
+        .usesAlternatingRowBackgroundColors()
         .onDoubleClick { row, col, view in
             switch col {
             case 0: view.cell(of: TextForCell.self)?.doubleClickSubject.send()

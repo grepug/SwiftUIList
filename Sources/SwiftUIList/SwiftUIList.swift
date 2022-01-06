@@ -13,6 +13,8 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     var content: ListItemContentType<Data>
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     var hidingHeader = false
+    var usingAlternatingRowBackgroundColors = false
+    var drawingRowSeperators = false
     
     public init(_ data: Data,
                 selection: Binding<Data.Element?>,
@@ -42,78 +44,13 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.setupColumns(columns)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
+        nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
+        
+        nsViewController.tableView.gridColor = .gridColor
+        nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []
         
         if hidingHeader {
             nsViewController.tableView.headerView = nil
         }
     }
-}
-
-public extension SwiftUIList {
-    func onDoubleClick(action: @escaping (Int, Int, NSView) -> Void) -> Self {
-        var mutableSelf = self
-        mutableSelf.onDoubleClicked = action
-        
-        return mutableSelf
-    }
-    
-    func contextMenu(menu: @escaping (Data.Element, Int, Int) -> [ListItemContextMenu]) -> Self {
-        var mutableSelf = self
-        mutableSelf.contextMenus = menu
-        
-        return mutableSelf
-    }
-    
-    func columns(_ columns: [ListItemColumn]) -> Self {
-        var mutableSelf = self
-        mutableSelf.columns = columns
-        
-        return mutableSelf
-    }
-    
-    func headerHidden() -> Self {
-        var mutableSelf = self
-        mutableSelf.hidingHeader = true
-        
-        return mutableSelf
-    }
-}
-
-public struct ListItemContextMenu {
-    public init(title: String, kind: ListItemContextMenu.Kind = .menu, action: (() -> Void)? = nil, children: [ListItemContextMenu]? = nil) {
-        self.title = title
-        self.kind = kind
-        self.action = action
-        self.children = children
-    }
-    
-    public enum Kind {
-        case menu, separator
-    }
-    
-    let id = UUID().uuidString
-    let title: String
-    var kind: Kind = .menu
-    var action: (() -> Void)?
-    var children: [Self]?
-    
-    public static let separator: Self = .init(title: "", kind: .separator)
-}
-
-public struct ListItemColumn {
-    public init(id: String = UUID().uuidString, title: String, width: CGFloat? = nil, fixedWidth: CGFloat? = nil, maxWidth: CGFloat? = nil, minWidth: CGFloat? = nil) {
-        self.id = id
-        self.title = title
-        self.width = width
-        self.fixedWidth = fixedWidth
-        self.maxWidth = maxWidth
-        self.minWidth = minWidth
-    }
-    
-    var id = UUID().uuidString
-    let title: String
-    var width: CGFloat?
-    var fixedWidth: CGFloat?
-    var maxWidth: CGFloat?
-    var minWidth: CGFloat?
 }
