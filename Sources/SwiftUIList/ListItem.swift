@@ -6,9 +6,12 @@
 //
 
 import Foundation
-import DifferenceKit
 
-public struct ListItem<Data: Sequence>: Identifiable & Hashable & Differentiable where Data.Element: DataElement {
+protocol ListItemKind: Hashable, Identifiable {
+    var children: [Self] { get set }
+}
+
+public struct ListItem<Data: Sequence>: Identifiable & Hashable where Data.Element: DataElement {
     public static func == (lhs: ListItem<Data>, rhs: ListItem<Data>) -> Bool {
         lhs.value == rhs.value
     }
@@ -23,11 +26,19 @@ public struct ListItem<Data: Sequence>: Identifiable & Hashable & Differentiable
     public var id: Data.Element.ID { value.id }
     
     var children: [Self]? {
-        if let childrenPath = childrenPath {
-            return value[keyPath: childrenPath]?.map { Self($0, children: childrenPath) }
+        get {
+            if let childrenPath = childrenPath {
+                return value[keyPath: childrenPath]?.map { Self($0, children: childrenPath) }
+            }
+            
+            return nil
         }
         
-        return nil
+        set {
+            if let childrenPath = childrenPath {
+                value[keyPath: childrenPath] = newValue?.map(\.value) as? Data
+            }
+        }
     }
     
     init(_ value: Data.Element,

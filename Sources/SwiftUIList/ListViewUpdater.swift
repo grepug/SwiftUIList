@@ -7,7 +7,6 @@
 
 import Foundation
 import AppKit
-import DifferenceKit
 
 struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
     func performUpdates(tableView: NSOutlineView,
@@ -28,16 +27,27 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
         }
         
         var removedElements = [ListItem<Data>]()
+        var insertIndexSet = IndexSet()
+        var removeIndexSet = IndexSet()
         
         for change in diff {
             switch change {
-            case .insert(offset: let offset, _, _):
-                tableView.insertItems(at: [offset], inParent: parent, withAnimation: .effectFade)
-            case .remove(offset: let offset, element: let element, _):
-                removedElements.append(element)
-                tableView.removeItems(at: [offset], inParent: parent, withAnimation: .effectFade)
+            case .insert(offset: let offset, element: _, _):
+                insertIndexSet.insert(offset)
+            case .remove(offset: let offset, element: let item, _):
+                removedElements.append(item)
+                removeIndexSet.insert(offset)
             }
         }
+        
+        let reloadIndexSet = insertIndexSet.intersection(removeIndexSet)
+        insertIndexSet = insertIndexSet.subtracting(reloadIndexSet)
+        removeIndexSet = removeIndexSet.subtracting(reloadIndexSet)
+        let itemsShouldReload = itemsShouldReload(in: diff, offsets: reloadIndexSet)
+        
+        tableView.insertItems(at: insertIndexSet, inParent: parent, withAnimation: .effectFade)
+        tableView.removeItems(at: removeIndexSet, inParent: parent, withAnimation: .effectFade)
+        itemsShouldReload.forEach { tableView.reloadItem($0) }
         
         var oldUnchangedElements = oldUnwrappedState.dictionaryFromIdentity()
         removedElements.forEach { oldUnchangedElements.removeValue(forKey: $0.id) }
@@ -49,6 +59,22 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
             .map { (oldUnchangedElements[$0].unsafelyUnwrapped, newStateDict[$0].unsafelyUnwrapped) }
             .map { (tableView, $0.0.children, $0.1.children, $0.1) }
             .forEach(performUpdates)
+    }
+    
+    private func itemsShouldReload(in diff: CollectionDifference<ListItem<Data>>, offsets: IndexSet) -> [ListItem<Data>] {
+        var items = [ListItem<Data>]()
+        
+        for change in diff.removals {
+            switch change {
+            case .remove(offset: let offset, element: let item, associatedWith: _):
+                if offsets.contains(offset) {
+                    items.append(item)
+                }
+            default: break
+            }
+        }
+        
+        return items
     }
 }
 

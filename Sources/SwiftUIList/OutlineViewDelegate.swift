@@ -30,29 +30,29 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
     func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
         let item = typedItem(item: item)
         let row = outlineView.row(forItem: item)
-        
         let column = outlineView.tableColumns.firstIndex(of: tableColumn!)!
         
         let binding = Binding<Data.Element> {
             item.value
         } set: { newValue in
-            var items = self.items.map(\.value)
+            let items = self.updateNewItem(newValue, items: self.items)
             
-            for (i, item) in items.enumerated() {
-                if item.id == newValue.id {
-                    items[i] = newValue
-                    break
-                }
-            }
+//            for (i, item) in items.enumerated() {
+//                if item.id == newValue.id {
+//                    items[i] = newValue
+//                    break
+//                }
+//            }
             
-            self.itemsChanged?(items as! Data)
+            print(items, items == self.items)
+//            self.itemsChanged?(items as! Data)
         }
         
         return content(row, column, binding)
     }
     
     func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-        22
+        24
     }
     
     func outlineViewItemDidExpand(_ notification: Notification) {
@@ -152,7 +152,19 @@ private extension OutlineViewDelegate {
         return false
     }
     
-    func updateNewItem(id: Data.Element.ID, item: Data.Element) {
+    func updateNewItem(_ newItem: Data.Element, items: [ListItem<Data>]) -> [ListItem<Data>] {
+        var items = items
         
+        for (i, item) in items.enumerated() {
+            if item.id == newItem.id {
+                items[i].value = newItem
+            }
+            
+            if let children = item.children {
+                items[i].children = updateNewItem(newItem, items: children)
+            }
+        }
+        
+        return items
     }
 }
