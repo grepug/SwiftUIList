@@ -23,7 +23,7 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
         let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0.id == $1.id })
         
         if !diff.isEmpty || oldState != newState {
-            
+            tableView.reloadItem(parent, reloadChildren: false)
         }
         
         var removedElements = [ListItem<Data>]()

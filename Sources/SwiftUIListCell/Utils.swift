@@ -8,7 +8,6 @@
 import AppKit
 import SwiftUI
 import Combine
-import SwiftUIList
 
 public protocol CellWrappable: View {
     var doubleClickSubject: PassthroughSubject<Void, Never> { get }
@@ -37,8 +36,4 @@ public extension NSView {
         
         return result
     }
-}
-
-public extension SwiftUIList {
-    
 }
