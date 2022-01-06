@@ -66,7 +66,12 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
               childrenKeyPath: childrenKeyPath,
               content: content,
               contextMenu: contextMenu,
-              selectionChanged: { selection = $0 })
+              selectionChanged: { selection = $0 },
+              itemsChanged: { items in
+            DispatchQueue.main.async {
+                data = items.map(\.value) as! Data
+            }
+        })
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {

@@ -21,7 +21,7 @@ struct ContentView: View {
     var body: some View {
         SwiftUIList($data,
                     selection: $selection2,
-                    children: \.children,
+//                    children: \.children,
                     content: content)
         .contextMenu(menu: { row, col, item in
             [.init(title: "a") {
@@ -41,6 +41,9 @@ struct ContentView: View {
             case 2: view.cell(of: DatePickerCell.self)?.doubleClickSubject.send()
             default: break
             }
+        }
+        .onChange(of: data) { newValue in
+            print(data.first?.finished)
         }
     }
     
