@@ -6,14 +6,15 @@
 //
 
 import Foundation
+import DifferenceKit
 
-public struct ListItem<Data: Sequence>: Identifiable & Equatable & Hashable where Data.Element: DataElement {
+public struct ListItem<Data: Sequence>: Identifiable & Hashable & Differentiable where Data.Element: DataElement {
     public static func == (lhs: ListItem<Data>, rhs: ListItem<Data>) -> Bool {
-        lhs.id == rhs.id
+        lhs.value == rhs.value
     }
     
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(value)
     }
     
     var value: Data.Element

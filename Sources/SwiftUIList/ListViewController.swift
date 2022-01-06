@@ -18,16 +18,14 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
          childrenKeyPath: ChildrenKeyPath<Data>?,
          content: @escaping ListItemContentType<Data>,
          contextMenu: ContextMenu<Data>?,
-         selectionChanged: @escaping SelectionChanged<Data>,
-         itemsChanged: @escaping ItemsChanged<Data>) {
+         selectionChanged: @escaping SelectionChanged<Data>) {
         let items: [ListItem<Data>] = data.map { .init($0, children: childrenKeyPath) }
         
         tableView = TableView(items: items, contextMenu: contextMenu)
         dataSource = .init()
         delegate = .init(items: items,
                          content: content,
-                         selectionChanged: selectionChanged,
-                         itemsChanged: itemsChanged)
+                         selectionChanged: selectionChanged)
         
         super.init(nibName: nil, bundle: nil)
         

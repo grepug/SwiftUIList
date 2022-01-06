@@ -7,6 +7,7 @@
 
 import Foundation
 import AppKit
+import DifferenceKit
 
 struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
     func performUpdates(tableView: NSOutlineView,
@@ -20,9 +21,9 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
             return
         }
         
-        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0.id == $1.id })
+        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0 == $1 })
         
-        if !diff.isEmpty || oldState != newState {
+        if !diff.isEmpty || oldState != newState, let parent = parent {
             tableView.reloadItem(parent, reloadChildren: false)
         }
         

@@ -12,19 +12,17 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
     var items: [ListItem<Data>]
     let content: ListItemContentType<Data>
     let selectionChanged: SelectionChanged<Data>
-    let itemsChanged: ItemsChanged<Data>
+    var itemsChanged: ItemsChanged<Data>?
     
     private var selectedItems: Set<ListItem<Data>>
     
     init(items: [ListItem<Data>],
          content: @escaping ListItemContentType<Data>,
-         selectionChanged: @escaping SelectionChanged<Data>,
-         itemsChanged: @escaping ItemsChanged<Data>) {
+         selectionChanged: @escaping SelectionChanged<Data>) {
         self.items = items
         self.content = content
         self.selectionChanged = selectionChanged
         self.selectedItems = []
-        self.itemsChanged = itemsChanged
         
         super.init()
     }
@@ -38,9 +36,16 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
         let binding = Binding<Data.Element> {
             item.value
         } set: { newValue in
-            var items = self.items
-            items[row].value = newValue
-            self.itemsChanged(items)
+            var items = self.items.map(\.value)
+            
+            for (i, item) in items.enumerated() {
+                if item.id == newValue.id {
+                    items[i] = newValue
+                    break
+                }
+            }
+            
+            self.itemsChanged?(items as! Data)
         }
         
         return content(row, column, binding)

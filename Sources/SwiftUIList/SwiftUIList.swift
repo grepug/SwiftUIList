@@ -66,12 +66,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
               childrenKeyPath: childrenKeyPath,
               content: content,
               contextMenu: contextMenu,
-              selectionChanged: { selection = $0 },
-              itemsChanged: { items in
-            DispatchQueue.main.async {
-                data = items.map(\.value) as! Data
-            }
-        })
+              selectionChanged: { selection = $0 })
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
@@ -80,6 +75,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
+        nsViewController.delegate.itemsChanged = { data = $0 }
         
         nsViewController.tableView.gridColor = .gridColor
         nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []
