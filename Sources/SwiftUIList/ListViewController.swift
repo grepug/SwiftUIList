@@ -8,22 +8,22 @@
 import AppKit
 import SwiftUI
 
-public class ListViewController<Data: Sequence>: NSViewController where Data.Element: DataElement {
-    let tableView: TableView<Data>
-    let dataSource: OutlineViewDataSource<Data>
-    let delegate: OutlineViewDelegate<Data>
-    let updater = ListViewUpdater<Data>()
+public class ListViewController<Item: DataElement>: NSViewController {
+    typealias Data = [Item]
+    
+    let tableView: TableView<Item>
+    let dataSource: OutlineViewDataSource<Item>
+    let delegate: OutlineViewDelegate<Item>
+    let updater = ListViewUpdater<Item>()
     
     init(data: Data,
-         childrenKeyPath: ChildrenKeyPath<Data>?,
          content: @escaping ListItemContentType<Data>,
          contextMenu: ContextMenu<Data>?,
          selectionChanged: @escaping SelectionChanged<Data>) {
-        let items: [ListItem<Data>] = data.map { .init($0, children: childrenKeyPath) }
         
-        tableView = TableView(items: items, contextMenu: contextMenu)
+        tableView = TableView(items: data, contextMenu: contextMenu)
         dataSource = .init()
-        delegate = .init(items: items,
+        delegate = .init(items: data,
                          content: content,
                          selectionChanged: selectionChanged)
         
@@ -58,8 +58,8 @@ public class ListViewController<Data: Sequence>: NSViewController where Data.Ele
 }
 
 extension ListViewController {
-    func updateData(newValue: Data, children: ChildrenKeyPath<Data>?) {
-        let newState: [ListItem<Data>] = newValue.map { .init($0, children: children) }
+    func updateData(newValue: Data) {
+        let newState = newValue
 
         tableView.beginUpdates()
 
@@ -76,9 +76,9 @@ extension ListViewController {
         tableView.endUpdates()
     }
     
-    func changeSelectedItem(to item: Set<Data.Element>) {
+    func changeSelectedItem(to item: Set<Item>) {
         delegate.changeSelectedItem(
-            to: Set(item.map { ListItem($0) }),
+            to: item,
             in: tableView)
     }
     

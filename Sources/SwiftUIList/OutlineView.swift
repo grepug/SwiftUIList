@@ -7,6 +7,6 @@
 
 import AppKit
 
-class OutlineView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
+class OutlineView<Data: Collection>: NSOutlineView where Data.Element: DataElement {
     
 }

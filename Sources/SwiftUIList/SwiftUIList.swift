@@ -1,12 +1,12 @@
 import SwiftUI
 import AppKit
 
-public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where Data.Element: DataElement {
-    public typealias NSViewControllerType = ListViewController<Data>
+public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
+    public typealias NSViewControllerType = ListViewController<Item>
+    public typealias Data = [Item]
     
     @Binding var data: Data
     @Binding var selection: Set<Data.Element>
-    var childrenKeyPath: ChildrenKeyPath<Data>?
     var contextMenu: ContextMenu<Data>?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Data>
@@ -50,20 +50,8 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
         self._data = data
     }
     
-    public init(_ data: Binding<Data>,
-                selection: Binding<Set<Data.Element>>,
-                children: ChildrenKeyPath<Data>? = nil,
-                content: @escaping ListItemContentType<Data>) {
-        self._data = data
-        self._selection = selection
-        self.content = content
-        self.childrenKeyPath = children
-        self.allowingMultipleSelection = true
-    }
-    
     public func makeNSViewController(context: Context) -> NSViewControllerType {
         .init(data: data,
-              childrenKeyPath: childrenKeyPath,
               content: content,
               contextMenu: contextMenu,
               selectionChanged: { selection = $0 })
@@ -71,7 +59,7 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
         nsViewController.setupColumns(columns)
-        nsViewController.updateData(newValue: data, children: childrenKeyPath)
+        nsViewController.updateData(newValue: data)
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
@@ -85,4 +73,17 @@ public struct SwiftUIList<Data: Sequence>: NSViewControllerRepresentable where D
             nsViewController.tableView.headerView = nil
         }
     }
+}
+
+extension SwiftUIList where Data.Element: ListItemKind {
+    public init(_ data: Binding<Data>,
+                selection: Binding<Set<Data.Element>>,
+                content: @escaping ListItemContentType<Data>) {
+        self._data = data
+        self._selection = selection
+        self.content = content
+        self.allowingMultipleSelection = true
+    }
+    
+    
 }

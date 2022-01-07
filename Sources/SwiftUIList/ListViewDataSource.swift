@@ -6,13 +6,13 @@
 //
 
 import AppKit
-
-class ListViewDataSource<Data: Sequence>: NSObject, NSTableViewDataSource where Data.Element: DataElement {
-    var items: [ListItem<Data>] = []
-    
-    func numberOfRows(in tableView: NSTableView) -> Int {
-        print("count", items.count)
-        return items.count
-    }
-}
-
+//
+//class ListViewDataSource<Data: Collection>: NSObject, NSTableViewDataSource where Data.Element: DataElement {
+//    var items: [ListItem<Data>] = []
+//    
+//    func numberOfRows(in tableView: NSTableView) -> Int {
+//        print("count", items.count)
+//        return items.count
+//    }
+//}
+//

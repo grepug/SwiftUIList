@@ -7,16 +7,18 @@
 
 import AppKit
 
-class OutlineViewDataSource<Data: Sequence>: NSObject, NSOutlineViewDataSource where Data.Element: DataElement {
-    var items: [ListItem<Data>] = []
+class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSource {
+    typealias Data = [Item]
+    
+    var items: Data = []
     
     func numberOfRows(in tableView: NSTableView) -> Int {
         print("count", items.count)
         return items.count
     }
     
-    private func typedItem(_ item: Any) -> ListItem<Data> {
-        item as! ListItem<Data>
+    private func typedItem(_ item: Any) -> Item {
+        item as! Item
     }
     
     func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {

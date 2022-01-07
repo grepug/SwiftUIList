@@ -8,11 +8,13 @@
 import Foundation
 import AppKit
 
-struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
+struct ListViewUpdater<Item: DataElement> {
+    typealias Data = [Item]
+    
     func performUpdates(tableView: NSOutlineView,
-                        oldState: [ListItem<Data>]?,
-                        newState: [ListItem<Data>]?,
-                        parent: ListItem<Data>?) {
+                        oldState: Data?,
+                        newState: Data?,
+                        parent: Item?) {
         let oldUnwrappedState = oldState ?? []
         let newUnwrappedState = newState ?? []
         
@@ -20,13 +22,13 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
             return
         }
         
-        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0 == $1 })
+        let diff = newUnwrappedState.difference(from: oldUnwrappedState, by: { $0.isEqual(to: $1) })
         
         if !diff.isEmpty || oldState != newState, let parent = parent {
             tableView.reloadItem(parent, reloadChildren: false)
         }
         
-        var removedElements = [ListItem<Data>]()
+        var removedElements = Data()
         var insertIndexSet = IndexSet()
         var removeIndexSet = IndexSet()
         
@@ -61,8 +63,8 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
             .forEach(performUpdates)
     }
     
-    private func itemsShouldReload(in diff: CollectionDifference<ListItem<Data>>, offsets: IndexSet) -> [ListItem<Data>] {
-        var items = [ListItem<Data>]()
+    private func itemsShouldReload(in diff: CollectionDifference<Item>, offsets: IndexSet) -> Data {
+        var items = Data()
         
         for change in diff.removals {
             switch change {
@@ -78,7 +80,7 @@ struct ListViewUpdater<Data: Sequence> where Data.Element: DataElement {
     }
 }
 
-fileprivate extension Sequence where Element: Identifiable {
+fileprivate extension Collection where Element: Identifiable {
     func dictionaryFromIdentity() -> [Element.ID: Element] {
         Dictionary(map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
     }

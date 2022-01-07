@@ -21,7 +21,6 @@ struct ContentView: View {
     var body: some View {
         SwiftUIList($data,
                     selection: $selection2,
-                    children: \.children,
                     content: content)
         .contextMenu(menu: { row, col, item in
             [.init(title: "a") {
@@ -55,7 +54,7 @@ struct ContentView: View {
     }
 }
 
-struct Item: DataElement {
+struct Item: ListItemKind {
     var title: String
     var date: Date = Date()
     var score = 0

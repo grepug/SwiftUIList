@@ -7,14 +7,16 @@
 
 import AppKit
 
-class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
-    var items: [ListItem<Data>]
+class TableView<Item: DataElement>: NSOutlineView {
+    typealias Data = [Item]
+    
+    var items: Data
     var contextMenu: ContextMenu<Data>?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
     private var contextMenuActions = [String: () -> Void]()
     
-    init(items: [ListItem<Data>],
+    init(items: Data,
          contextMenu: ((Data.Element, Int, Int) -> [ListItemContextMenu])? = nil) {
         self.items = items
         self.contextMenu = contextMenu
@@ -72,8 +74,8 @@ class TableView<Data: Sequence>: NSOutlineView where Data.Element: DataElement {
         
         guard row > -1 else { return nil }
         
-        let item = item(atRow: row) as! ListItem<Data>
-        let contextMenu = contextMenu?(item.value, row, col) ?? []
+        let item = item(atRow: row) as! Item
+        let contextMenu = contextMenu?(item, row, col) ?? []
         let menu = makeContextMenu(contextMenu: contextMenu, menu: NSMenu(title: ""))
         
         return menu

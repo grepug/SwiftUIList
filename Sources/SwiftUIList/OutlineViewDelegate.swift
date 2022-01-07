@@ -8,15 +8,17 @@
 import AppKit
 import SwiftUI
 
-class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where Data.Element: DataElement {
-    var items: [ListItem<Data>]
+class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
+    typealias Data = [Item]
+    
+    var items: Data
     let content: ListItemContentType<Data>
     let selectionChanged: SelectionChanged<Data>
-    var itemsChanged: ItemsChanged<Data>?
+    var itemsChanged: ItemsChanged<Item>?
     
-    private var selectedItems: Set<ListItem<Data>>
+    private var selectedItems: Set<Item>
     
-    init(items: [ListItem<Data>],
+    init(items: Data,
          content: @escaping ListItemContentType<Data>,
          selectionChanged: @escaping SelectionChanged<Data>) {
         self.items = items
@@ -32,20 +34,13 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
         let row = outlineView.row(forItem: item)
         let column = outlineView.tableColumns.firstIndex(of: tableColumn!)!
         
-        let binding = Binding<Data.Element> {
-            item.value
+        let binding = Binding<Item> {
+            item
         } set: { newValue in
             let items = self.updateNewItem(newValue, items: self.items)
             
-//            for (i, item) in items.enumerated() {
-//                if item.id == newValue.id {
-//                    items[i] = newValue
-//                    break
-//                }
-//            }
-            
             print(items, items == self.items)
-//            self.itemsChanged?(items as! Data)
+            self.itemsChanged?(items)
         }
         
         return content(row, column, binding)
@@ -71,7 +66,7 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
             if selectedItemIndexSet != selectedRows {
                 let selection = Set(selectedRows
                                         .compactMap { outlineView.item(atRow: $0) }
-                                        .map { self.typedItem(item: $0).value })
+                                        .map { self.typedItem(item: $0) })
                 
                 selectionChanged(selection)
             }
@@ -79,7 +74,7 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
     }
     
     func outlineViewItemWillCollapse(_ notification: Notification) {
-        guard let item = notification.userInfo?.first?.value as? ListItem<Data> else {
+        guard let item = notification.userInfo?.first?.value as? Item else {
             return
         }
         let outlineView = notification.object as! NSOutlineView
@@ -94,7 +89,7 @@ class OutlineViewDelegate<Data: Sequence>: NSObject, NSOutlineViewDelegate where
 
 extension OutlineViewDelegate {
     func selectRow(
-        for items: Set<ListItem<Data>>,
+        for items: Set<Item>,
         in outlineView: NSOutlineView
     ) {
         let selectedItemIndexSet = selectedItemIndexSet(outlineView: outlineView)
@@ -107,7 +102,7 @@ extension OutlineViewDelegate {
     }
 
     func changeSelectedItem(
-        to items: Set<ListItem<Data>>,
+        to items: Set<Item>,
         in tableView: NSOutlineView
     ) {
         let selectedIds = Set(selectedItems.map(\.id))
@@ -121,8 +116,8 @@ extension OutlineViewDelegate {
 }
 
 private extension OutlineViewDelegate {
-    func typedItem(item: Any) -> ListItem<Data> {
-        item as! ListItem<Data>
+    func typedItem(item: Any) -> Item {
+        item as! Item
     }
     
     func selectedItemIndexSet(outlineView: NSOutlineView) -> IndexSet {
@@ -134,7 +129,7 @@ private extension OutlineViewDelegate {
         }
     }
     
-    func isChildrenSelected(outlineView: NSOutlineView, item: ListItem<Data>) -> Bool {
+    func isChildrenSelected(outlineView: NSOutlineView, item: Item) -> Bool {
         let selectedRows = outlineView.selectedRowIndexes
         
         if let children = item.children {
@@ -152,12 +147,12 @@ private extension OutlineViewDelegate {
         return false
     }
     
-    func updateNewItem(_ newItem: Data.Element, items: [ListItem<Data>]) -> [ListItem<Data>] {
+    func updateNewItem(_ newItem: Data.Element, items: Data) -> Data {
         var items = items
         
         for (i, item) in items.enumerated() {
             if item.id == newItem.id {
-                items[i].value = newItem
+                items[i] = newItem
             }
             
             if let children = item.children {
