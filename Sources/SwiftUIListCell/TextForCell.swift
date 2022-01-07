@@ -133,7 +133,7 @@ struct TextForCellView: NSViewRepresentable {
         
         func controlTextDidChange(_ obj: Notification) {
             let textField = obj.object as! NSTextField
-            let isValid = validator?.isValid(textField.stringValue) ?? false
+            let isValid = validator?.isValid(textField.stringValue) ?? true
             
             if !isValid {
                 textField.stringValue = text

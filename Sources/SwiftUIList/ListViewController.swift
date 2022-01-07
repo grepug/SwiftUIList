@@ -7,6 +7,7 @@
 
 import AppKit
 import SwiftUI
+import Combine
 
 public class ListViewController<Item: DataElement>: NSViewController {
     typealias Data = [Item]
@@ -14,18 +15,23 @@ public class ListViewController<Item: DataElement>: NSViewController {
     let tableView: TableView<Item>
     let dataSource: OutlineViewDataSource<Item>
     let delegate: OutlineViewDelegate<Item>
-    let updater = ListViewUpdater<Item>()
+    weak var operationSubject: OperationSubject<Item>?
+    var operationHandler: ((ListOperation<Item>, NSOutlineView) -> Void)?
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init(data: Data,
-         content: @escaping ListItemContentType<Item>,
+         operationSubject: OperationSubject<Item>?,
          contextMenu: ContextMenu<Item>?,
-         selectionChanged: @escaping SelectionChanged<Item>) {
+         content: @escaping ListItemContentType<Item>,
+         selectionChanged: @escaping SelectionChanged<Item>,
+         items: @escaping () -> Data) {
         
         tableView = TableView(items: data, contextMenu: contextMenu)
-        dataSource = .init()
-        delegate = .init(items: data,
-                         content: content,
+        dataSource = .init(items: items)
+        delegate = .init(content: content,
                          selectionChanged: selectionChanged)
+        self.operationSubject = operationSubject
         
         super.init(nibName: nil, bundle: nil)
         
@@ -48,6 +54,20 @@ public class ListViewController<Item: DataElement>: NSViewController {
         view = NSScrollView(frame: .zero)
     }
     
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        tableView.reloadData()
+        
+        operationSubject?
+            .sink { [weak self] operation in
+                guard let self = self else { return }
+                
+                self.operationHandler?(operation, self.tableView)
+        }
+        .store(in: &cancellables)
+    }
+    
     public override func viewWillAppear() {
         // Size the column to take the full width. This combined with
         // the uniform column autoresizing style allows the column to
@@ -58,23 +78,22 @@ public class ListViewController<Item: DataElement>: NSViewController {
 }
 
 extension ListViewController {
-    func updateData(newValue: Data) {
-        let newState = newValue
-
-        tableView.beginUpdates()
-
-        let oldState = dataSource.items
-        dataSource.items = newState
-        delegate.items = newState
-        
-        updater.performUpdates(
-            tableView: tableView,
-            oldState: oldState,
-            newState: newState,
-            parent: nil)
-
-        tableView.endUpdates()
-    }
+//    func updateData(newValue: Data) {
+//        let newState = newValue
+//
+//        tableView.beginUpdates()
+//
+//        let oldState = dataSource.items
+//        delegate.items = newState
+//        
+//        updater.performUpdates(
+//            tableView: tableView,
+//            oldState: oldState,
+//            newState: newState,
+//            parent: nil)
+//
+//        tableView.endUpdates()
+//    }
     
     func changeSelectedItem(to item: Set<Item>) {
         delegate.changeSelectedItem(

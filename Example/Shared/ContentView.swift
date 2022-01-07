@@ -11,43 +11,68 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View {
-    @State var data: [Item] = [.init(title: "1",
-                                     children: [.init(title: "a",
-                                                      children: [.init(title: "b")])])]
-    @State var selection: Item?
+    typealias Item = Example.Item
     
+    @State var data: [Item] = [.init(title: "1",
+                                     children: [.init(title: "2",
+                                                      children: [.init(title: "3")])])]
+    @State var selection: Item?
     @State var selection2 = Set<Item>()
     
+    let operations = PassthroughSubject<ListOperation<Item>,Never>()
+    
     var body: some View {
-        SwiftUIList($data,
-                    selection: $selection2,
-                    content: content)
-        .contextMenu(menu: { row, col, item in
-            [.init(title: "a") {
-            }, .init(title: "b")]
-        })
-        .columns([
-            .init(title: "值"),
-            .init(title: "时间"),
-            .init(title: "备忘"),
-            .init(title: "已完成")
-        ])
-        .usesAlternatingRowBackgroundColors()
-        .onDoubleClick { row, col, view in
-            switch col {
-            case 0: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
-            case 1: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
-            case 2: view.cell(of: DatePickerCell.self)?.doubleClickSubject.send()
-            default: break
+        VStack(alignment: .leading, spacing: 0) {
+            SwiftUIList($data,
+                        selection: $selection2,
+                        operationSubject: operations,
+                        content: content)
+                .contextMenu(menu: { row, col, item in
+                    [.init(title: "a") {
+                    }, .init(title: "b")]
+                })
+                .columns([
+                    .init(title: "值"),
+                    .init(title: "时间"),
+                    .init(title: "备忘"),
+                    .init(title: "已完成", shouldReloadOnUpdate: true)
+                ])
+                .usesAlternatingRowBackgroundColors()
+                .onDoubleClick { row, col, view in
+                    switch col {
+                    case 0: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
+                    case 1: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
+                    case 2: view.cell(of: DatePickerCell.self)?.doubleClickSubject.send()
+                    default: break
+                    }
+                }
+            
+            HStack {
+                Button {
+                    if let item = selection2.first {
+                        operations.send(.insert2(.init(title: "6"), after: item))
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                
+                Button {
+                    if let item = selection2.first {
+                        operations.send(.remove(item))
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                }
             }
+            .padding()
         }
     }
     
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
-        case 0: return TextForCell(item.title, textValidator: .int).nsView
+        case 0: return TextForCell(item.title).nsView
         case 1: return TextForCell(.constant(0)).nsView
-        case 2: return DatePickerCell(date: .constant(.init())).nsView
+        case 2: return DatePickerCell(date: item.date).nsView
         case 3: return ToggleCell(isOn: item.finished).nsView
         default: fatalError()
         }
@@ -64,13 +89,13 @@ final class Item: ListItemKind {
     }
     
     var title: String = ""
-//    var date: Date = Date()
-//    var score = 0
+    var date: Date = Date()
     var finished = false
     
-    var id: String { title }
+    var id = UUID()
     
     var children: [Item]?
+    var parent: Item?
     
     init(title: String, children: [Item]? = nil) {
         self.title = title

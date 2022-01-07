@@ -21,7 +21,11 @@ public struct DatePickerCell: CellWrappable {
     
     public var body: some View {
         if #available(macOS 12.0, *) {
-            TextForCell(date.formatted(date: .numeric, time: .shortened))
+            TextForCell(.init(get: {
+                date.formatted(date: .numeric, time: .shortened)
+            }, set: { string in
+                
+            }))
                 .popover(isPresented: $isEditing) {
                     DatePicker("", selection: $date)
                 }

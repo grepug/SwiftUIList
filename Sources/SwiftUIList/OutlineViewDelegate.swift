@@ -11,17 +11,14 @@ import SwiftUI
 class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     typealias Data = [Item]
     
-    var items: Data
     let content: ListItemContentType<Item>
     let selectionChanged: SelectionChanged<Item>
-    var itemsChanged: ItemsChanged<Item>?
+    var columns: [ListItemColumn]?
     
     private var selectedItems: Set<Item>
     
-    init(items: Data,
-         content: @escaping ListItemContentType<Item>,
+    init(content: @escaping ListItemContentType<Item>,
          selectionChanged: @escaping SelectionChanged<Item>) {
-        self.items = items
         self.content = content
         self.selectionChanged = selectionChanged
         self.selectedItems = []
@@ -33,11 +30,22 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
         let item = typedItem(item: item)
         let row = outlineView.row(forItem: item)
         let column = outlineView.tableColumns.firstIndex(of: tableColumn!)!
+        let shouldReload = columns?[column].shouldReloadOnUpdate ?? false
         
         let binding = Binding<Item> {
             item
         } set: { newValue in
-//            outlineView.reloadItem(item, reloadChildren: false)
+            if shouldReload {
+                outlineView.reloadItem(item, reloadChildren: false)
+                
+                DispatchQueue.main.async {
+                    let isSelected = outlineView.isRowSelected(row)
+                    if isSelected {
+                        outlineView.deselectRow(row)
+                        outlineView.selectRowIndexes([row], byExtendingSelection: true)
+                    }
+                }
+            }
         }
         
         return content(row, column, binding)
@@ -82,13 +90,6 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
             outlineView.selectRowIndexes([row], byExtendingSelection: false)
         }
     }
-    
-//    func outlineViewItemWillExpand(_ notification: Notification) {
-//        let item = notification.userInfo?.first?.value as? Item
-//        let outlineView = notification.object as! NSOutlineView
-//        
-//        outlineView.reloadItem(item, reloadChildren: true)
-//    }
 }
 
 extension OutlineViewDelegate {
