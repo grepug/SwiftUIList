@@ -75,6 +75,8 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
                 
                 selectionChanged(selection)
             }
+        } else {
+            selectionChanged([])
         }
     }
     
