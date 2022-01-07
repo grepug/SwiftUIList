@@ -12,11 +12,6 @@ class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSourc
     
     var items: Data = []
     
-    func numberOfRows(in tableView: NSTableView) -> Int {
-        print("count", items.count)
-        return items.count
-    }
-    
     private func typedItem(_ item: Any) -> Item {
         item as! Item
     }
@@ -35,6 +30,7 @@ class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSourc
     
     func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
         if let item = item.map(typedItem) {
+            print(item)
             return item.children![index]
         }
         

@@ -9,13 +9,12 @@ import AppKit
 import SwiftUI
 
 public typealias DataElement = ListItemKind
-public typealias ListItemContentType<Data: Collection> = (Int, Int, Binding<Data.Element>) -> NSView where Data.Element: DataElement
-public typealias ChildrenKeyPath<Data: Collection> = WritableKeyPath<Data.Element, Data?> where Data.Element: DataElement
-public typealias ContextMenu<Data: Collection> = ((Data.Element, Int, Int) -> [ListItemContextMenu]) where Data.Element: DataElement
+public typealias ListItemContentType<Item: DataElement> = (Int, Int, Binding<Item>) -> NSView
+public typealias ContextMenu<Item: DataElement> = ((Item, Int, Int) -> [ListItemContextMenu])
 public typealias ItemsChanged<Item> = ([Item]) -> Void
 
 public protocol OutlineItem: DataElement {
     var children: [Self]? { get set }
 }
 
-typealias SelectionChanged<Data: Collection> = (Set<Data.Element>) -> Void where Data.Element: DataElement
+typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void

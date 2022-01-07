@@ -11,7 +11,7 @@ class TableView<Item: DataElement>: NSOutlineView {
     typealias Data = [Item]
     
     var items: Data
-    var contextMenu: ContextMenu<Data>?
+    var contextMenu: ContextMenu<Item>?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
     private var contextMenuActions = [String: () -> Void]()

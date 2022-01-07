@@ -12,15 +12,15 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     typealias Data = [Item]
     
     var items: Data
-    let content: ListItemContentType<Data>
-    let selectionChanged: SelectionChanged<Data>
+    let content: ListItemContentType<Item>
+    let selectionChanged: SelectionChanged<Item>
     var itemsChanged: ItemsChanged<Item>?
     
     private var selectedItems: Set<Item>
     
     init(items: Data,
-         content: @escaping ListItemContentType<Data>,
-         selectionChanged: @escaping SelectionChanged<Data>) {
+         content: @escaping ListItemContentType<Item>,
+         selectionChanged: @escaping SelectionChanged<Item>) {
         self.items = items
         self.content = content
         self.selectionChanged = selectionChanged
@@ -37,10 +37,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
         let binding = Binding<Item> {
             item
         } set: { newValue in
-            let items = self.updateNewItem(newValue, items: self.items)
-            
-            print(items, items == self.items)
-            self.itemsChanged?(items)
+//            outlineView.reloadItem(item, reloadChildren: false)
         }
         
         return content(row, column, binding)
@@ -85,6 +82,13 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
             outlineView.selectRowIndexes([row], byExtendingSelection: false)
         }
     }
+    
+//    func outlineViewItemWillExpand(_ notification: Notification) {
+//        let item = notification.userInfo?.first?.value as? Item
+//        let outlineView = notification.object as! NSOutlineView
+//        
+//        outlineView.reloadItem(item, reloadChildren: true)
+//    }
 }
 
 extension OutlineViewDelegate {

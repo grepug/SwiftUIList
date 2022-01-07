@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol ListItemKind: Hashable, Identifiable {
+public protocol ListItemKind: AnyObject, Hashable, Identifiable {
     var children: [Self]? { get set }
 }
 

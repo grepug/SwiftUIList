@@ -46,21 +46,34 @@ struct ContentView: View {
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
         case 0: return TextForCell(item.title, textValidator: .int).nsView
-        case 1: return TextForCell(item.score).nsView
-        case 2: return DatePickerCell(date: item.date).nsView
+        case 1: return TextForCell(.constant(0)).nsView
+        case 2: return DatePickerCell(date: .constant(.init())).nsView
         case 3: return ToggleCell(isOn: item.finished).nsView
         default: fatalError()
         }
     }
 }
 
-struct Item: ListItemKind {
-    var title: String
-    var date: Date = Date()
-    var score = 0
+final class Item: ListItemKind {
+    static func == (lhs: Item, rhs: Item) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    var title: String = ""
+//    var date: Date = Date()
+//    var score = 0
     var finished = false
     
     var id: String { title }
     
     var children: [Item]?
+    
+    init(title: String, children: [Item]? = nil) {
+        self.title = title
+        self.children = children
+    }
 }

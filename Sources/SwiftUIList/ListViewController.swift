@@ -17,9 +17,9 @@ public class ListViewController<Item: DataElement>: NSViewController {
     let updater = ListViewUpdater<Item>()
     
     init(data: Data,
-         content: @escaping ListItemContentType<Data>,
-         contextMenu: ContextMenu<Data>?,
-         selectionChanged: @escaping SelectionChanged<Data>) {
+         content: @escaping ListItemContentType<Item>,
+         contextMenu: ContextMenu<Item>?,
+         selectionChanged: @escaping SelectionChanged<Item>) {
         
         tableView = TableView(items: data, contextMenu: contextMenu)
         dataSource = .init()
