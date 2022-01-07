@@ -34,14 +34,14 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
         
         let binding = Binding<Item> {
             item
-        } set: { newValue in
+        } set: { _ in
             if shouldReload {
                 outlineView.reloadItem(item, reloadChildren: false)
                 
-                DispatchQueue.main.async {
-                    let isSelected = outlineView.isRowSelected(row)
-                    if isSelected {
-                        outlineView.deselectRow(row)
+                let isSelected = outlineView.isRowSelected(row)
+                if isSelected {
+                    outlineView.deselectRow(row)
+                    DispatchQueue.main.async {
                         outlineView.selectRowIndexes([row], byExtendingSelection: true)
                     }
                 }

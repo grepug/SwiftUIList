@@ -38,7 +38,6 @@ class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSourc
         let items = items()
         
         if let item = item.map(typedItem) {
-            print(item)
             return item.children![index]
         }
         

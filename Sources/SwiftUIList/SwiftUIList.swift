@@ -79,17 +79,17 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     
     func operationHandler(operation: ListOperation<Item>, outlineView: NSOutlineView) {
         switch operation {
-        case .insert(let item, offset: let offset, parent: let parent):
-            if let parent = parent {
-                parent.children?.insert(item, at: offset)
-            } else {
-                data.insert(item, at: offset)
-            }
+        case .insert(let item, after: let afterItem):
+            let parent: Item?
+            let index: Int
             
-            outlineView.insertItems(at: [offset], inParent: parent, withAnimation: .effectFade)
-        case .insert2(let item, after: let afterItem):
-            let parent = outlineView.parent(forItem: afterItem) as? Item
-            let index = (parent?.children ?? data).firstIndex(of: afterItem)! + 1
+            if let afterItem = afterItem {
+                parent = outlineView.parent(forItem: afterItem) as? Item
+                index = (parent?.children ?? data).firstIndex(of: afterItem)! + 1
+            } else {
+                parent = nil
+                index = data.endIndex
+            }
             
             if let parent = parent {
                 parent.children?.insert(item, at: index)
@@ -98,6 +98,14 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
             }
             
             outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
+        case .insert2(let item, offset: let offset, parent: let parent):
+            if let parent = parent {
+                parent.children?.insert(item, at: offset)
+            } else {
+                data.insert(item, at: offset)
+            }
+            
+            outlineView.insertItems(at: [offset], inParent: parent, withAnimation: .effectFade)
         case .remove(let item):
             let parent = outlineView.parent(forItem: item) as? Item
             let index = (parent?.children ?? data).firstIndex(of: item)!

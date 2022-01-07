@@ -49,9 +49,8 @@ struct ContentView: View {
             
             HStack {
                 Button {
-                    if let item = selection2.first {
-                        operations.send(.insert2(.init(title: "6"), after: item))
-                    }
+                    let newItem = Item(title: "6")
+                    operations.send(.insert(newItem, after: selection2.first))
                 } label: {
                     Image(systemName: "plus")
                 }
