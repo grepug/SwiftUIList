@@ -9,14 +9,14 @@ import AppKit
 import SwiftUI
 import Combine
 
-public class ListViewController<Item: DataElement>: NSViewController {
+public class ListViewController<Item: DataElement>: NSViewController where Item.Child == Item {
     typealias Data = [Item]
     
-    let tableView: TableView<Item>
+    let tableView: OutlineView<Item>
     let dataSource: OutlineViewDataSource<Item>
     let delegate: OutlineViewDelegate<Item>
     weak var operationSubject: OperationSubject<Item>?
-    var operationHandler: ((ListOperation<Item>, NSOutlineView) -> Void)?
+    var operationHandler: ((ListOperation<Item>, NSOutlineView, OutlineViewDataSource<Item>) -> Void)?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -27,7 +27,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
          selectionChanged: @escaping SelectionChanged<Item>,
          items: @escaping () -> Data) {
         
-        tableView = TableView(items: data, contextMenu: contextMenu)
+        tableView = OutlineView(items: data, contextMenu: contextMenu)
         dataSource = .init(items: items)
         delegate = .init(content: content,
                          selectionChanged: selectionChanged)
@@ -60,10 +60,8 @@ public class ListViewController<Item: DataElement>: NSViewController {
         tableView.reloadData()
         
         operationSubject?
-            .sink { [weak self] operation in
-                guard let self = self else { return }
-                
-                self.operationHandler?(operation, self.tableView)
+            .sink { operation in
+                self.operationHandler?(operation, self.tableView, self.dataSource)
         }
         .store(in: &cancellables)
     }

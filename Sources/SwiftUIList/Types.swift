@@ -17,7 +17,10 @@ public typealias OperationSubject<Item: DataElement> = PassthroughSubject<ListOp
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
 public protocol ListItemKind: AnyObject, Hashable, Identifiable {
-    var children: [Self]? { get set }
+    
+    associatedtype Child: ListItemKind
+    
+    var children: [Child]? { get set }
 }
 
 public extension ListItemKind {
@@ -30,4 +33,5 @@ public enum ListOperation<Item: DataElement> {
     case insert(Item, after: Item?)
     case insert2(Item, offset: Int, parent: Item?)
     case remove(Item)
+    case reload(data: [Item])
 }

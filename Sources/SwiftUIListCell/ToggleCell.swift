@@ -17,6 +17,16 @@ public struct ToggleCell: CellWrappable {
         self._isOn = isOn
     }
     
+    public init<Item>(item: Binding<Item>, isOn: ReferenceWritableKeyPath<Item, Bool>) {
+        self._isOn = .init(get: {
+            let value = item.wrappedValue[keyPath: isOn]
+            print("value", value)
+            return value
+        }, set: { newValue in
+            item.wrappedValue[keyPath: isOn] = newValue
+        })
+    }
+    
     public var body: some View {
         Toggle("", isOn: $isOn)
     }

@@ -70,15 +70,15 @@ struct ContentView: View {
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
         case 0: return TextForCell(item.title).nsView
-        case 1: return TextForCell(.constant(0)).nsView
+        case 1: return TextForCell(item: item, double: \.score).nsView
         case 2: return DatePickerCell(date: item.date).nsView
-        case 3: return ToggleCell(isOn: item.finished).nsView
+        case 3: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()
         }
     }
 }
 
-final class Item: ListItemKind {
+class Item: ListItemKind {
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }
@@ -89,12 +89,16 @@ final class Item: ListItemKind {
     
     var title: String = ""
     var date: Date = Date()
-    var finished = false
+    var finished = false {
+        didSet {
+            print("score", finished)
+        }
+    }
+    var score: Double = 0
     
     var id = UUID()
     
     var children: [Item]?
-    var parent: Item?
     
     init(title: String, children: [Item]? = nil) {
         self.title = title

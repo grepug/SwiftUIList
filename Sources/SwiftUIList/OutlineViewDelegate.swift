@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
+class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate where Item.Child == Item {
     typealias Data = [Item]
     
     let content: ListItemContentType<Item>

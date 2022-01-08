@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  OutlineView.swift
 //  
 //
 //  Created by Kai on 2022/1/5.
@@ -7,7 +7,7 @@
 
 import AppKit
 
-class TableView<Item: DataElement>: NSOutlineView {
+class OutlineView<Item: DataElement>: NSOutlineView {
     typealias Data = [Item]
     
     var items: Data
@@ -120,7 +120,7 @@ class TableView<Item: DataElement>: NSOutlineView {
     }
 }
 
-private extension TableView {
+private extension OutlineView {
     func makeContextMenu(contextMenu: [ListItemContextMenu], menu: NSMenu) -> NSMenu {
         for item in contextMenu {
             if let children = item.children {

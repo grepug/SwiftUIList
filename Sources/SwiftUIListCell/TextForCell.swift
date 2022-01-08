@@ -9,13 +9,24 @@ import SwiftUI
 import AppKit
 import Combine
 
+extension Binding where Value == Double {
+    var string: Binding<String> {
+        .init {
+            return wrappedValue.toString(fixedAndDroppingZeros: 2)
+        } set: { newValue in
+            wrappedValue = Double(newValue) ?? 0
+        }
+    }
+}
+
 public struct TextForCell: CellWrappable {
     
     @Binding var text: String
     var textValidator: TextValidator?
     public let doubleClickSubject = PassthroughSubject<Void, Never>()
     
-    @State var isEditing: Bool = false
+    @State private var isEditing: Bool = false
+    @State private var double: Double = 0
     
     public init(_ text: Binding<String>,
                 textValidator: TextValidator? = nil) {
@@ -27,21 +38,23 @@ public struct TextForCell: CellWrappable {
         self._text = .constant(text)
     }
     
-    public init(_ double: Binding<Double>) {
-        self._text = .init {
-            String(double.wrappedValue)
-        } set: { newValue in
-            double.wrappedValue = Double(newValue) ?? 0
-        }
+    public init<Item>(item: Binding<Item>, double: ReferenceWritableKeyPath<Item, Double>) {
+        self._text = .init(get: {
+            item.wrappedValue[keyPath: double].toString(fixedAndDroppingZeros: 2)
+        }, set: { newValue in
+            item.wrappedValue[keyPath: double] = Double(newValue) ?? 0
+        })
+        
         self.textValidator = .double
     }
     
-    public init(_ int: Binding<Int>) {
-        self._text = .init {
-            String(int.wrappedValue)
-        } set: { newValue in
-            int.wrappedValue = Int(newValue) ?? 0
-        }
+    public init<Item>(item: Binding<Item>, int: ReferenceWritableKeyPath<Item, Int>) {
+        self._text = .init(get: {
+            String(item.wrappedValue[keyPath: int])
+        }, set: { newValue in
+            item.wrappedValue[keyPath: int] = Int(newValue) ?? 0
+        })
+        
         self.textValidator = .int
     }
     
@@ -52,35 +65,6 @@ public struct TextForCell: CellWrappable {
             .onReceive(doubleClickSubject) { _ in
                 isEditing = true
             }
-    }
-}
-
-public struct TextValidator {
-    var isValid: (String) -> Bool
-    var formatted: (String) -> String
-}
-
-public extension TextValidator {
-    static var int: Self {
-        .init { string in
-            string.isNumber || string.isEmpty
-        } formatted: { string in
-            String(Int(string) ?? 0)
-        }
-    }
-    
-    static var double: Self {
-        .init { string in
-            string.isNumber || string.isEmpty
-        } formatted: { string in
-            String(Double(string) ?? 0)
-        }
-    }
-}
-
-extension String  {
-    var isNumber: Bool {
-        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
     }
 }
 
@@ -143,9 +127,7 @@ struct TextForCellView: NSViewRepresentable {
                 onChange(formatted)
                 text = formatted
                 
-                if formatted != textField.stringValue {
-                    textField.stringValue = formatted
-                }
+                textField.stringValue = formatted
             }
         }
     }

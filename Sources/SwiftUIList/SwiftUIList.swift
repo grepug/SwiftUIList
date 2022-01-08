@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import Combine
 
-public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
+public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable where Item.Child == Item {
     public typealias NSViewControllerType = ListViewController<Item>
     public typealias Data = [Item]
     
@@ -62,6 +62,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
         nsViewController.setupColumns(columns)
+        nsViewController.dataSource.items = { data }
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
@@ -77,8 +78,11 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         }
     }
     
-    func operationHandler(operation: ListOperation<Item>, outlineView: NSOutlineView) {
+    func operationHandler(operation: ListOperation<Item>, outlineView: NSOutlineView, dataSource: OutlineViewDataSource<Item>) {
         switch operation {
+        case .reload(data: let data):
+            self.data = data
+            outlineView.reloadData()
         case .insert(let item, after: let afterItem):
             let parent: Item?
             let index: Int

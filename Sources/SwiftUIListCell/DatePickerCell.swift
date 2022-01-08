@@ -21,7 +21,7 @@ public struct DatePickerCell: CellWrappable {
     
     public var body: some View {
         if #available(macOS 12.0, *) {
-            TextForCell(.init(get: {
+            TextForCell(.init(get: { () -> String in
                 date.formatted(date: .numeric, time: .shortened)
             }, set: { string in
                 
