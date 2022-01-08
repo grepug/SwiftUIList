@@ -32,6 +32,57 @@ public extension ListItemKind {
 public enum ListOperation<Item: DataElement> {
     case insert(Item, after: Item?)
     case insert2(Item, offset: Int, parent: Item?)
+    case insertBefore(Item, before: Item?)
     case remove(Item)
     case reload(data: [Item])
+}
+
+public protocol ListViewOperable {
+    associatedtype Item: ListItemKind
+    
+    func items() -> [Item]
+    func updateView()
+    
+    static var operations: OperationSubject<Item> { get }
+}
+
+public extension ListViewOperable {
+    func reloadList(withItems _items: [Item]? = nil) {
+        DispatchQueue.main.async {
+            let items = _items ?? items()
+            
+            Self.operations.send(.reload(data: items))
+        }
+    }
+    
+    func insertItem(_ item: Item, at index: Int, inParent parent: Item? = nil) {
+        Self.operations.send(.insert2(item, offset: index, parent: parent))
+    }
+    
+    func insertItem(_ item: Item) {
+        Self.operations.send(.insert(item, after: nil))
+    }
+    
+    func insertItem(_ item: Item, before beforeItem: Item) {
+        Self.operations.send(.insertBefore(item, before: beforeItem))
+    }
+    
+    func insertItem(_ item: Item, after afterItem: Item) {
+        Self.operations.send(.insert(item, after: afterItem))
+    }
+    
+    func removeItem(_ item: Item) {
+        Self.operations.send(.remove(item))
+    }
+}
+
+public extension ListViewOperable where Item: NSManagedObject {
+    func removeItem(_ item: Item) {
+        guard let context = item.managedObjectContext else { return }
+        
+        Self.operations.send(.remove(item))
+        context.delete(item)
+        try? context.save()
+        updateView()
+    }
 }

@@ -38,11 +38,14 @@ public struct TextForCell: CellWrappable {
         self._text = .constant(text)
     }
     
-    public init<Item>(item: Binding<Item>, double: ReferenceWritableKeyPath<Item, Double>) {
+    public init<Item>(item: Binding<Item>,
+                      double: ReferenceWritableKeyPath<Item, Double>,
+                      onChange: @autoclosure @escaping (() -> Void)) {
         self._text = .init(get: {
             item.wrappedValue[keyPath: double].toString(fixedAndDroppingZeros: 2)
         }, set: { newValue in
             item.wrappedValue[keyPath: double] = Double(newValue) ?? 0
+            onChange()
         })
         
         self.textValidator = .double
