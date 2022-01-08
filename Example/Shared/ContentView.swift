@@ -70,8 +70,9 @@ struct ContentView: View {
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
         case 0: return TextForCell(item.title).nsView
-        case 1: return TextForCell(item: item, double: \.score).nsView
-        case 2: return DatePickerCell(date: item.date).nsView
+        case 1: return TextForCell(item: item, double: \.score, onChange: ()).nsView
+//        case 2: return DatePickerCell(date: item.date).nsView
+        case 2: return TextForCell("").nsView
         case 3: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()
         }

@@ -28,6 +28,8 @@ public struct TextForCell: CellWrappable {
     @State private var isEditing: Bool = false
     @State private var double: Double = 0
     
+    @EnvironmentObject private var cell: CellWrapper<Self>
+    
     public init(_ text: Binding<String>,
                 textValidator: TextValidator? = nil) {
         self._text = text
@@ -63,26 +65,20 @@ public struct TextForCell: CellWrappable {
     
     public var body: some View {
         TextForCellView(text: $text,
-                        isEditing: $isEditing,
                         validator: textValidator)
-            .onReceive(doubleClickSubject) { _ in
-                isEditing = true
-            }
     }
 }
 
 struct TextForCellView: NSViewRepresentable {
-    public typealias NSViewType = NSTextField
+    public typealias NSViewType = CustomTextField
     
     @Binding var text: String
-    @Binding var isEditing: Bool
     var validator: TextValidator?
     
-    func makeNSView(context: Context) -> NSTextField {
-        let textField = NSTextField(string: text)
+    func makeNSView(context: Context) -> NSViewType {
+        let textField = NSViewType(string: text)
         
         textField.stringValue = text
-        textField.isSelectable = false
         textField.isBezeled = false
         textField.drawsBackground = false
         textField.usesSingleLineMode = false
@@ -93,8 +89,7 @@ struct TextForCellView: NSViewRepresentable {
         return textField
     }
     
-    func updateNSView(_ nsView: NSTextField, context: Context) {
-        nsView.isEditable = isEditing
+    func updateNSView(_ nsView: NSViewType, context: Context) {
         nsView.stringValue = text
     }
     
@@ -134,4 +129,13 @@ struct TextForCellView: NSViewRepresentable {
             }
         }
     }
+}
+
+class CustomTextField: NSTextField {
+//    override func mouseDown(with event: NSEvent) {
+//        super.mouseDown(with: event)
+//        if event.clickCount == 2 {
+//            isEditable = true
+//        }
+//    }
 }

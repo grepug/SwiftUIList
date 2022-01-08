@@ -14,8 +14,8 @@ public protocol CellWrappable: View {
 }
 
 public extension CellWrappable {
-    var nsView: NSHostingView<Self> {
-        .init(rootView: self)
+    var nsView: NSView {
+        CellWrapper(rootView: self)
     }
 }
 
