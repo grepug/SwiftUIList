@@ -31,7 +31,7 @@ struct Sidebar: View {
     var body: some View {
         VStack {
             SwiftUIList($data, selection: $selection, content: { row, col, $item in
-                NodeCell(text: $item.title, emoji: $item.emoji).cellWrappedView
+                NodeCell(text: $item.title, emoji: $item.emoji).nsView
             })
                 .contextMenu { item, row, col in
                     [

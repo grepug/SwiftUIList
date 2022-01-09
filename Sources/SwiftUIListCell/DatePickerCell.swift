@@ -12,9 +12,10 @@ import Combine
 public struct DatePickerCell: CellWrappable {
     @Binding var date: Date
     
-    public let doubleClickSubject = PassthroughSubject<Void, Never>()
     @State public var isEditing = false
     @State private var internalDate: Date
+    
+    @EnvironmentObject var cell: CellWrapper<Self>
     
     public init(date: Binding<Date>) {
         self._date = date
@@ -22,16 +23,13 @@ public struct DatePickerCell: CellWrappable {
     }
     
     public var body: some View {
-        TextCellView(text: .init(get: {
-            date.formatted(in: .short, timeStyle: .short)
-        }, set: { _ in
-            
-        }), canEdit: false)
+        TextCellView(text: .constant(internalDate.formatted(in: .short, timeStyle: .short)),
+                     canEdit: false, onDoubleClick: {
+            isEditing = true
+        })
+            .foregroundColor(cell.textColor)
             .popover(isPresented: $isEditing) {
                 DatePicker("", selection: $internalDate)
-            }
-            .onReceive(doubleClickSubject) { _ in
-                isEditing = true
             }
             .onChange(of: isEditing) { isEditing in
                 if !isEditing {

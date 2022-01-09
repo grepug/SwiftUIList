@@ -80,13 +80,13 @@ class OutlineView<Item: DataElement>: NSOutlineView {
         super.mouseDown(with: event)
         
         let row = row(for: event)
-        let col = column(for: event)
         
         guard row > -1 else { return }
         
+        let col = column(for: event)
+        let view = view(atColumn: col, row: row, makeIfNecessary: false)!
+        
         if event.clickCount == 2 {
-            let view = view(atColumn: col, row: row, makeIfNecessary: false)!
-            
             onDoubleClicked?(row, col, view)
         }
         
@@ -94,6 +94,10 @@ class OutlineView<Item: DataElement>: NSOutlineView {
             // Clear the highlight if the user clicks away from the menu.
             contextualRect = NSRect()
             setNeedsDisplay(contextualRect)
+        }
+        
+        if let textField = view.subviews(ofType: NSTextField.self).first {
+            textField.mouseDown(with: event)
         }
     }
     
@@ -143,5 +147,17 @@ private extension OutlineView {
         }
         
         return menu
+    }
+}
+            
+public extension NSView {
+    func subviews<T: NSView>(ofType type: T.Type) -> [T] {
+        var result = subviews.compactMap { $0 as? T }
+        
+        for sub in subviews {
+            result.append(contentsOf: sub.subviews(ofType: type))
+        }
+        
+        return result
     }
 }

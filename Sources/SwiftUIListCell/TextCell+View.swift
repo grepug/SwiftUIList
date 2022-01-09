@@ -15,15 +15,18 @@ public struct TextCellView: NSViewRepresentable {
     var validator: TextValidator?
     var canEdit: Bool
     var onTextDidEndEditing: (() -> Void)?
+    var onDoubleClick: (() -> Void)?
     
     public init(text: Binding<String>,
                 validator: TextValidator? = nil,
                 canEdit: Bool = true,
-                onTextDidEndEditing: (() -> Void)? = nil) {
+                onTextDidEndEditing: (() -> Void)? = nil,
+                onDoubleClick: (() -> Void)? = nil) {
         self._text = text
         self.validator = validator
         self.canEdit = canEdit
         self.onTextDidEndEditing = onTextDidEndEditing
+        self.onDoubleClick = onDoubleClick
     }
     
     public func makeNSView(context: Context) -> NSViewType {
@@ -38,6 +41,7 @@ public struct TextCellView: NSViewRepresentable {
         textField.delegate = context.coordinator
         textField.isEditable = canEdit
         textField.isSelectable = canEdit
+        textField.onDoubleClick = onDoubleClick
         
         return textField
     }
@@ -95,6 +99,8 @@ public struct TextCellView: NSViewRepresentable {
 }
 
 public class CustomTextField: NSTextField {
+    var onDoubleClick: (() -> Void)?
+    
     public override func becomeFirstResponder() -> Bool {
         drawsBackground = true
         
@@ -105,5 +111,11 @@ public class CustomTextField: NSTextField {
         super.textDidEndEditing(notification)
         
         drawsBackground = false
+    }
+    
+    public override func mouseDown(with event: NSEvent) {
+        if event.clickCount == 2 {
+            onDoubleClick?()
+        }
     }
 }

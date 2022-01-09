@@ -11,7 +11,6 @@ import Combine
 
 public class CellWrapper<Content: View>: NSTableCellView, ObservableObject {
     @Published public var isSelected: Bool = false
-    let doubleClickedSubject = PassthroughSubject<Void, Never>()
     
     init(rootView: Content) {
         super.init(frame: .zero)

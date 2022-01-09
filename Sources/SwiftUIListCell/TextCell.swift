@@ -10,14 +10,13 @@ import AppKit
 import Combine
 
 public struct TextCell: CellWrappable {
-    var textValidator: TextValidator?
-    public let doubleClickSubject = PassthroughSubject<Void, Never>()
-    
-    var onChange: ((String) -> Void)?
-    
     @State private var isEditing: Bool = false
     @State private var internalText: String
+    
+    private var textValidator: TextValidator?
     private var canEdit: Bool = true
+    private var onChange: ((String) -> Void)?
+    private var onDoubleClick: (() -> Void)?
     
     @EnvironmentObject private var cell: CellWrapper<Self>
     
@@ -30,9 +29,11 @@ public struct TextCell: CellWrappable {
         }
     }
     
-    public init(_ text: String) {
+    public init(_ text: String,
+                onDoubleClick: (() -> Void)? = nil) {
         self._internalText = State(initialValue: text)
         self.canEdit = false
+        self.onDoubleClick = onDoubleClick
     }
     
     public init<Item>(item: Binding<Item>,
@@ -41,6 +42,7 @@ public struct TextCell: CellWrappable {
         self._internalText = State(initialValue: item.wrappedValue[keyPath: double].toString(fixedAndDroppingZeros: 2))
         self.onChange = { string in
             item.wrappedValue[keyPath: double] = Double(string) ?? 0
+            onChange()
         }
         self.textValidator = .double
     }
@@ -50,6 +52,8 @@ public struct TextCell: CellWrappable {
                      validator: textValidator,
                      canEdit: canEdit) {
             onChange?(internalText)
+        } onDoubleClick: {
+            onDoubleClick?()
         }
     }
 }

@@ -6,19 +6,13 @@
 //
 
 import AppKit
-import SwiftUI
 import Combine
+import SwiftUI
 
-public protocol CellWrappable: View {
-    var doubleClickSubject: PassthroughSubject<Void, Never> { get }
-}
+public protocol CellWrappable: View {}
 
 public extension CellWrappable {
     var nsView: NSView {
-        NSHostingView(rootView: self)
-    }
-    
-    var cellWrappedView: NSView {
         CellWrapper(rootView: self)
     }
 }
@@ -30,7 +24,7 @@ public extension NSView {
     }
 }
 
-public extension NSView {
+extension NSView {
     func subviews<T: NSView>(ofType type: T.Type) -> [T] {
         var result = subviews.compactMap { $0 as? T }
         
