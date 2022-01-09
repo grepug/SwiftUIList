@@ -25,7 +25,7 @@ public struct DatePickerCell: CellWrappable {
                 date.formatted(date: .numeric, time: .standard)
             }, set: { _ in
                 
-            }))
+            }), canEdit: false)
                 .popover(isPresented: $isEditing) {
                     DatePicker("", selection: $date)
                 }

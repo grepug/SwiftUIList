@@ -74,6 +74,7 @@ struct TextForCellView: NSViewRepresentable {
     
     @Binding var text: String
     var validator: TextValidator?
+    var canEdit = true
     
     func makeNSView(context: Context) -> NSViewType {
         let textField = NSViewType(string: text)
@@ -85,6 +86,8 @@ struct TextForCellView: NSViewRepresentable {
         textField.cell?.wraps = true
         textField.cell?.isScrollable = false
         textField.delegate = context.coordinator
+        textField.isEditable = canEdit
+        textField.isSelectable = canEdit
         
         return textField
     }
