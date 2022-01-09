@@ -132,10 +132,15 @@ struct TextForCellView: NSViewRepresentable {
 }
 
 class CustomTextField: NSTextField {
-//    override func mouseDown(with event: NSEvent) {
-//        super.mouseDown(with: event)
-//        if event.clickCount == 2 {
-//            isEditable = true
-//        }
-//    }
+    override func becomeFirstResponder() -> Bool {
+        drawsBackground = true
+        
+        return super.becomeFirstResponder()
+    }
+    
+    override func textDidEndEditing(_ notification: Notification) {
+        super.textDidEndEditing(notification)
+        
+        drawsBackground = false
+    }
 }
