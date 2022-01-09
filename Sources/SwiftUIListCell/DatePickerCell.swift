@@ -26,7 +26,7 @@ public struct DatePickerCell: CellWrappable {
         })
         self._internalDate = State(initialValue: date.wrappedValue)
         self.formatter = { date in
-            formatter?(date!) ?? date!.formatted(in: .short, timeStyle: .short)
+            formatter?(date!) ?? Self.defaultDateFormatter(date: date)
         }
     }
     
@@ -34,20 +34,34 @@ public struct DatePickerCell: CellWrappable {
         self.optionalDate = true
         self._date = date
         self._internalDate = State(initialValue: date.wrappedValue)
-        self.formatter = formatter ?? { (date: Date?) in
-            date?.formatted(in: .short, timeStyle: .short) ?? " - "
+        self.formatter = { (date: Date?) in
+            formatter?(date) ?? Self.defaultDateFormatter(date: date)
+        }
+    }
+    
+    public init<Content: View>(date: Binding<Date?>,
+                               formatter: ((Date) -> String)? = nil,
+                               emptyView: () -> Content) {
+        self.optionalDate = true
+        self._date = date
+        self._internalDate = State(initialValue: date.wrappedValue)
+        self.formatter = { (date: Date?) in
+            if let date = date, let formatter = formatter {
+                return formatter(date)
+            }
+            
+            return Self.defaultDateFormatter(date: date)
         }
     }
     
     public var body: some View {
         HStack {
-            TextCellView(text: .init(get: {
-                formatter(internalDate)
-            }, set: { _ in }),
-                         canEdit: false, onDoubleClick: {
+            TextCellView(text: .constant(formatter(internalDate)),
+                         canEdit: false,
+                         onDoubleClick: {
                 isEditing = true
             })
-              
+            
             if optionalDate && internalDate != nil {
                 Spacer()
                 Button {
@@ -70,9 +84,17 @@ public struct DatePickerCell: CellWrappable {
                 if !isEditing {
                     date = internalDate
                 } else {
-                    internalDate = Date()
+                    if internalDate == nil {
+                        internalDate = Date()
+                    }
                 }
             }
+    }
+}
+
+extension DatePickerCell {
+    static func defaultDateFormatter(date: Date?) -> String {
+        date?.formatted(in: .short, timeStyle: .short) ?? " - "
     }
 }
 
