@@ -47,8 +47,8 @@ struct ContentView: View, ListViewOperable {
                 .usesAlternatingRowBackgroundColors()
                 .onDoubleClick { row, col, view in
                     switch col {
-                    case 0: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
-                    case 1: view.cell(of: TextForCell.self)?.doubleClickSubject.send()
+                    case 0: view.cell(of: TextCell.self)?.doubleClickSubject.send()
+                    case 1: view.cell(of: TextCell.self)?.doubleClickSubject.send()
                     case 2: view.cell(of: DatePickerCell.self)?.doubleClickSubject.send()
                     default: break
                     }
@@ -79,8 +79,8 @@ struct ContentView: View, ListViewOperable {
     
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
-        case 0: return TextForCell(item.title).cellWrappedView
-        case 1: return TextForCell(item: item, double: \.score, onChange: ()).cellWrappedView
+        case 0: return TextCell(item.title).cellWrappedView
+        case 1: return TextCell(item: item, double: \.score, onChange: ()).cellWrappedView
         case 2: return DatePickerCell(date: item.date).nsView
         case 3: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()

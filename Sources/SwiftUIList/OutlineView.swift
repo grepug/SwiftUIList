@@ -51,19 +51,14 @@ class OutlineView<Item: DataElement>: NSOutlineView {
         let targetRow = row(at: convert(event.locationInWindow, from: nil))
         if targetRow != -1 {
             let rect = rect(ofRow: targetRow)
-            
-            if targetRow % 2 == 0 {
-                contextualRect = rect
-            } else {
+                
+            if targetRow % 2 != 0 && usesAlternatingRowBackgroundColors {
                 contextualRect = .init(x: rect.origin.x,
                                        y: rect.origin.y - 2.5,
                                        width: rect.width,
                                        height: rect.height + 5)
-            }
-            
-            let selectedRowFrame = frameOfCell(atColumn: 0, row: selectedRow)
-            if contextualRect.intersects(selectedRowFrame) {
-                contextualRect = NSRect()
+            } else {
+                contextualRect = rect
             }
         }
         
