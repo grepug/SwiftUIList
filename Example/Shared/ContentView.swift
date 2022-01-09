@@ -97,14 +97,22 @@ class Item: ListItemKind {
         hasher.combine(id)
     }
     
-    var title: String = ""
+    var title: String = "" {
+        didSet {
+            print("title", title)
+        }
+    }
     var date: Date = Date()
     var finished = false {
         didSet {
-            print("score", finished)
+            print("finished", finished)
         }
     }
-    var score: Double = 0
+    var score: Double = 0 {
+        didSet {
+            print("score", score)
+        }
+    }
     
     var id = UUID()
     

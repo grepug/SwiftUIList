@@ -14,11 +14,16 @@ public struct TextCellView: NSViewRepresentable {
     @Binding var text: String
     var validator: TextValidator?
     var canEdit: Bool
+    var onTextDidEndEditing: (() -> Void)?
     
-    public init(text: Binding<String>, validator: TextValidator? = nil, canEdit: Bool = true) {
+    public init(text: Binding<String>,
+                validator: TextValidator? = nil,
+                canEdit: Bool = true,
+                onTextDidEndEditing: (() -> Void)? = nil) {
         self._text = text
         self.validator = validator
         self.canEdit = canEdit
+        self.onTextDidEndEditing = onTextDidEndEditing
     }
     
     public func makeNSView(context: Context) -> NSViewType {
@@ -42,9 +47,11 @@ public struct TextCellView: NSViewRepresentable {
     }
     
     public func makeCoordinator() -> Coordinator {
-        let coordinator = Coordinator(initialText: text) {
+        let coordinator = Coordinator(initialText: text, onTextDidEndEditing: {
+            onTextDidEndEditing?()
+        }, onChange: {
             text = $0
-        }
+        })
         
         coordinator.validator = validator
         
@@ -55,10 +62,14 @@ public struct TextCellView: NSViewRepresentable {
         var onChange: (String) -> Void
         var validator: TextValidator?
         var text: String
+        var onTextDidEndEditing: () -> Void
         
-        init(initialText: String, onChange: @escaping (String) -> Void) {
+        init(initialText: String,
+             onTextDidEndEditing: @escaping () -> Void,
+             onChange: @escaping (String) -> Void) {
             self.text = initialText
             self.onChange = onChange
+            self.onTextDidEndEditing = onTextDidEndEditing
         }
         
         public func controlTextDidChange(_ obj: Notification) {
@@ -75,6 +86,10 @@ public struct TextCellView: NSViewRepresentable {
                 
                 textField.stringValue = formatted
             }
+        }
+        
+        public func controlTextDidEndEditing(_ obj: Notification) {
+            onTextDidEndEditing()
         }
     }
 }
