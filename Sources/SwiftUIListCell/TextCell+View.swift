@@ -102,9 +102,12 @@ public class CustomTextField: NSTextField {
     var onDoubleClick: (() -> Void)?
     
     public override func becomeFirstResponder() -> Bool {
-        drawsBackground = true
+        if super.becomeFirstResponder() {
+            drawsBackground = true
+            return true
+        }
         
-        return super.becomeFirstResponder()
+        return false
     }
     
     public override func textDidEndEditing(_ notification: Notification) {

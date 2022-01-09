@@ -53,6 +53,7 @@ struct ContentView: View, ListViewOperable {
                 Button {
                     let newItem = Item(title: "6")
                     insertItem(newItem, after: selection2.first)
+                    becomeFirstResponder(item: newItem, atColumn: 0)
                 } label: {
                     Image(systemName: "plus")
                 }

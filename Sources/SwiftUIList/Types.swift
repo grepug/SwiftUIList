@@ -37,6 +37,7 @@ public enum ListOperation<Item: DataElement> {
     case remove(Item)
     case reload(data: [Item])
     case reorder([Item], parent: Item?)
+    case becomeFirstResponder(Item, column: Int)
 }
 
 public protocol ListViewOperable {
@@ -81,6 +82,12 @@ public extension ListViewOperable {
         DispatchQueue.main.async {
             let items = _items ?? items()
             Self.operations.send(.reorder(items, parent: parent))
+        }
+    }
+    
+    func becomeFirstResponder(item: Item, atColumn column: Int) {
+        DispatchQueue.main.async {
+            Self.operations.send(.becomeFirstResponder(item, column: column))
         }
     }
 }

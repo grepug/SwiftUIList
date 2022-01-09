@@ -86,6 +86,13 @@ extension SwiftUIList {
                 default: break
                 }
             }
+        case .becomeFirstResponder(let item, column: let column):
+            let row = outlineView.row(forItem: item)
+            let view = outlineView.view(atColumn: column, row: row, makeIfNecessary: false)
+            
+            if let textField = view?.subviews(ofType: NSTextField.self).first {
+                textField.becomeFirstResponder()
+            }
         }
     }
 }

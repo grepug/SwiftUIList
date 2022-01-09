@@ -14,16 +14,20 @@ public struct DatePickerCell: CellWrappable {
     
     @State public var isEditing = false
     @State private var internalDate: Date
+    private var formatter: (Date) -> String
     
     @EnvironmentObject var cell: CellWrapper<Self>
     
-    public init(date: Binding<Date>) {
+    public init(date: Binding<Date>, formatter: ((Date) -> String)? = nil ) {
         self._date = date
         self._internalDate = State(initialValue: date.wrappedValue)
+        self.formatter = formatter ?? { date in
+            date.formatted(in: .short, timeStyle: .short)
+        }
     }
     
     public var body: some View {
-        TextCellView(text: .constant(internalDate.formatted(in: .short, timeStyle: .short)),
+        TextCellView(text: .constant(formatter(internalDate)),
                      canEdit: false, onDoubleClick: {
             isEditing = true
         })
