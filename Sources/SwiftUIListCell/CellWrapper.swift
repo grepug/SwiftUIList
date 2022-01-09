@@ -9,8 +9,8 @@ import AppKit
 import SwiftUI
 import Combine
 
-class CellWrapper<Content: View>: NSTableCellView, ObservableObject {
-    @Published var isSelected: Bool = false
+public class CellWrapper<Content: View>: NSTableCellView, ObservableObject {
+    @Published public var isSelected: Bool = false
     let doubleClickedSubject = PassthroughSubject<Void, Never>()
     
     init(rootView: Content) {
@@ -34,9 +34,13 @@ class CellWrapper<Content: View>: NSTableCellView, ObservableObject {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override var backgroundStyle: NSView.BackgroundStyle {
+    public override var backgroundStyle: NSView.BackgroundStyle {
         willSet {
             isSelected = newValue == .emphasized
         }
+    }
+    
+    public var textColor: Color {
+        isSelected ? .white : Color(NSColor.labelColor)
     }
 }

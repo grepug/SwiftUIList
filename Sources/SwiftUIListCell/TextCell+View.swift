@@ -8,14 +8,20 @@
 import AppKit
 import SwiftUI
 
-struct TextCellView: NSViewRepresentable {
+public struct TextCellView: NSViewRepresentable {
     public typealias NSViewType = CustomTextField
     
     @Binding var text: String
     var validator: TextValidator?
-    var canEdit = true
+    var canEdit: Bool
     
-    func makeNSView(context: Context) -> NSViewType {
+    public init(text: Binding<String>, validator: TextValidator? = nil, canEdit: Bool = true) {
+        self._text = text
+        self.validator = validator
+        self.canEdit = canEdit
+    }
+    
+    public func makeNSView(context: Context) -> NSViewType {
         let textField = NSViewType(string: text)
         
         textField.stringValue = text
@@ -31,11 +37,11 @@ struct TextCellView: NSViewRepresentable {
         return textField
     }
     
-    func updateNSView(_ nsView: NSViewType, context: Context) {
+    public func updateNSView(_ nsView: NSViewType, context: Context) {
         nsView.stringValue = text
     }
     
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         let coordinator = Coordinator(initialText: text) {
             text = $0
         }
@@ -45,7 +51,7 @@ struct TextCellView: NSViewRepresentable {
         return coordinator
     }
     
-    class Coordinator: NSObject, NSTextFieldDelegate {
+    public class Coordinator: NSObject, NSTextFieldDelegate {
         var onChange: (String) -> Void
         var validator: TextValidator?
         var text: String
@@ -55,7 +61,7 @@ struct TextCellView: NSViewRepresentable {
             self.onChange = onChange
         }
         
-        func controlTextDidChange(_ obj: Notification) {
+        public func controlTextDidChange(_ obj: Notification) {
             let textField = obj.object as! NSTextField
             let isValid = validator?.isValid(textField.stringValue) ?? true
             
@@ -73,14 +79,14 @@ struct TextCellView: NSViewRepresentable {
     }
 }
 
-class CustomTextField: NSTextField {
-    override func becomeFirstResponder() -> Bool {
+public class CustomTextField: NSTextField {
+    public override func becomeFirstResponder() -> Bool {
         drawsBackground = true
         
         return super.becomeFirstResponder()
     }
     
-    override func textDidEndEditing(_ notification: Notification) {
+    public override func textDidEndEditing(_ notification: Notification) {
         super.textDidEndEditing(notification)
         
         drawsBackground = false

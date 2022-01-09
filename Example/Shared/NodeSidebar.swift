@@ -31,7 +31,7 @@ struct Sidebar: View {
     var body: some View {
         VStack {
             SwiftUIList($data, selection: $selection, content: { row, col, $item in
-                TextCell($item.title).cellWrappedView
+                NodeCell(text: $item.title, emoji: $item.emoji).cellWrappedView
             })
                 .contextMenu { item, row, col in
                     [
@@ -54,6 +54,7 @@ class Node: ListItemKind {
     
     var id = UUID()
     var title: String
+    var emoji: String = "❓"
     var children: [Node]?
     
     init(_ title: String, children: [Node]? = nil) {
