@@ -22,25 +22,30 @@ public struct DatePickerCell: CellWrappable {
     }
     
     public var body: some View {
-        if #available(macOS 12.0, *) {
-            TextCellView(text: .init(get: {
-                date.formatted(date: .numeric, time: .standard)
-            }, set: { _ in
-                
-            }), canEdit: false)
-                .popover(isPresented: $isEditing) {
-                    DatePicker("", selection: $internalDate)
+        TextCellView(text: .init(get: {
+            date.formatted(in: .short, timeStyle: .short)
+        }, set: { _ in
+            
+        }), canEdit: false)
+            .popover(isPresented: $isEditing) {
+                DatePicker("", selection: $internalDate)
+            }
+            .onReceive(doubleClickSubject) { _ in
+                isEditing = true
+            }
+            .onChange(of: isEditing) { isEditing in
+                if !isEditing {
+                    date = internalDate
                 }
-                .onReceive(doubleClickSubject) { _ in
-                    isEditing = true
-                }
-                .onChange(of: isEditing) { isEditing in
-                    if !isEditing {
-                        date = internalDate
-                    }
-                }
-        } else {
-            // Fallback on earlier versions
-        }
+            }
+    }
+}
+
+extension Date {
+    func formatted(in type: DateFormatter.Style, timeStyle: DateFormatter.Style = .none) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = type
+        formatter.timeStyle = timeStyle
+        return formatter.string(from: self)
     }
 }

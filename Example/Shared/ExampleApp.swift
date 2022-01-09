@@ -11,8 +11,8 @@ import SwiftUI
 struct ExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            NodeSidebarContainer()
-//            ContentView()
+//            NodeSidebarContainer()
+            ContentView()
                 .frame(minWidth: 400, minHeight: 300)
         }
     }
