@@ -36,14 +36,12 @@ public struct TextCell: CellWrappable {
         self.onDoubleClick = onDoubleClick
     }
     
-    public init<Item>(item: Binding<Item>,
-                      double: ReferenceWritableKeyPath<Item, Double>,
-                      onChange: @autoclosure @escaping (() -> Void)) {
-        self._internalText = State(initialValue: item.wrappedValue[keyPath: double].toString(fixedAndDroppingZeros: 2))
+    public init(_ double: Binding<Double>) {
+        self._internalText = State(initialValue: double.wrappedValue.toString(fixedAndDroppingZeros: 2))
         self.onChange = { string in
-            item.wrappedValue[keyPath: double] = Double(string) ?? 0
-            onChange()
+            double.wrappedValue = Double(string) ?? 0
         }
+        
         self.textValidator = .double
     }
     

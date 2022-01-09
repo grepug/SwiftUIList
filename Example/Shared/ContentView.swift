@@ -42,7 +42,7 @@ struct ContentView: View, ListViewOperable {
                     .init(title: "值"),
                     .init(title: "时间"),
                     .init(title: "备忘"),
-                    .init(title: "已完成", shouldReloadOnUpdate: true)
+                    .init(title: "已完成")
                 ])
                 .usesAlternatingRowBackgroundColors()
                 .onItemChange { row, col, item in
@@ -72,7 +72,7 @@ struct ContentView: View, ListViewOperable {
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
         case 0: return TextCell(item.title).nsView
-        case 1: return TextCell(item: item, double: \.score, onChange: ()).nsView
+        case 1: return TextCell(item.score).nsView
         case 2: return DatePickerCell(date: item.date).nsView
         case 3: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()

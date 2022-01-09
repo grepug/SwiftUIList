@@ -9,25 +9,18 @@ import SwiftUI
 import Combine
 
 public struct ToggleCell: CellWrappable {
-    @Binding var isOn: Bool
-    
-    public let doubleClickSubject = PassthroughSubject<Void, Never>()
+    @Binding private var isOn: Bool
+    @State private var internalIsOn: Bool
     
     public init(isOn: Binding<Bool>) {
         self._isOn = isOn
-    }
-    
-    public init<Item>(item: Binding<Item>, isOn: ReferenceWritableKeyPath<Item, Bool>) {
-        self._isOn = .init(get: {
-            let value = item.wrappedValue[keyPath: isOn]
-            print("value", value)
-            return value
-        }, set: { newValue in
-            item.wrappedValue[keyPath: isOn] = newValue
-        })
+        self._internalIsOn = State(initialValue: isOn.wrappedValue)
     }
     
     public var body: some View {
-        Toggle("", isOn: $isOn)
+        Toggle("", isOn: $internalIsOn)
+            .onChange(of: internalIsOn) { newValue in
+                isOn = internalIsOn
+            }
     }
 }
