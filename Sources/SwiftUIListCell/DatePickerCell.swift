@@ -30,15 +30,6 @@ public struct DatePickerCell: CellWrappable {
         }
     }
     
-    public init(date: Binding<Date?>, formatter: ((Date?) -> String)? = nil) {
-        self.optionalDate = true
-        self._date = date
-        self._internalDate = State(initialValue: date.wrappedValue)
-        self.formatter = { (date: Date?) in
-            formatter?(date) ?? Self.defaultDateFormatter(date: date)
-        }
-    }
-    
     public init(date: Binding<Date?>,
                 formatter: ((Date) -> String)? = nil,
                 hasPlusButton: Bool = true) {
