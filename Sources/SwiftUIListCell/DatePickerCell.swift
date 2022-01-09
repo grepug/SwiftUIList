@@ -10,34 +10,67 @@ import AppKit
 import Combine
 
 public struct DatePickerCell: CellWrappable {
-    @Binding var date: Date
+    @Binding private var date: Date?
+    @State private var isEditing = false
+    @State private var internalDate: Date?
+    private var optionalDate: Bool
     
-    @State public var isEditing = false
-    @State private var internalDate: Date
-    private var formatter: (Date) -> String
+    private var formatter: (Date?) -> String
     
-    @EnvironmentObject var cell: CellWrapper<Self>
+    public init(date: Binding<Date>, formatter: ((Date) -> String)? = nil) {
+        self.optionalDate = false
+        self._date = .init(get: {
+            date.wrappedValue
+        }, set: { newValue in
+            date.wrappedValue = newValue!
+        })
+        self._internalDate = State(initialValue: date.wrappedValue)
+        self.formatter = { date in
+            formatter?(date!) ?? date!.formatted(in: .short, timeStyle: .short)
+        }
+    }
     
-    public init(date: Binding<Date>, formatter: ((Date) -> String)? = nil ) {
+    public init(date: Binding<Date?>, formatter: ((Date?) -> String)? = nil) {
+        self.optionalDate = true
         self._date = date
         self._internalDate = State(initialValue: date.wrappedValue)
-        self.formatter = formatter ?? { date in
-            date.formatted(in: .short, timeStyle: .short)
+        self.formatter = formatter ?? { (date: Date?) in
+            date?.formatted(in: .short, timeStyle: .short) ?? " - "
         }
     }
     
     public var body: some View {
-        TextCellView(text: .constant(formatter(internalDate)),
-                     canEdit: false, onDoubleClick: {
-            isEditing = true
-        })
-            .foregroundColor(cell.textColor)
+        HStack {
+            TextCellView(text: .init(get: {
+                formatter(internalDate)
+            }, set: { _ in }),
+                         canEdit: false, onDoubleClick: {
+                isEditing = true
+            })
+              
+            if optionalDate && internalDate != nil {
+                Spacer()
+                Button {
+                    date = nil
+                    internalDate = nil
+                } label: {
+                    Image(systemName: "minus.circle")
+                }
+                .buttonStyle(.plain)
+            }
+        }
             .popover(isPresented: $isEditing) {
-                DatePicker("", selection: $internalDate)
+                DatePicker("", selection: .init(get: {
+                    internalDate ?? Date()
+                }, set: { newValue in
+                    internalDate = newValue
+                }))
             }
             .onChange(of: isEditing) { isEditing in
                 if !isEditing {
                     date = internalDate
+                } else {
+                    internalDate = Date()
                 }
             }
     }

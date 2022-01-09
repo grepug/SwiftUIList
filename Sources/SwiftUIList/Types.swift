@@ -86,7 +86,7 @@ public extension ListViewOperable {
     }
     
     func becomeFirstResponder(item: Item, atColumn column: Int) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             Self.operations.send(.becomeFirstResponder(item, column: column))
         }
     }
