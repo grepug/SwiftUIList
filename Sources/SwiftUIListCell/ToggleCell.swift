@@ -18,12 +18,10 @@ public struct ToggleCell: CellWrappable {
     }
     
     public var body: some View {
-        HStack {
-            Toggle("", isOn: $internalIsOn)
-                .onChange(of: internalIsOn) { newValue in
-                    isOn = internalIsOn
-                }
-            Spacer()
-        }
+        Toggle("", isOn: $internalIsOn)
+            .onChange(of: internalIsOn) { newValue in
+                isOn = internalIsOn
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
