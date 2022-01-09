@@ -76,9 +76,7 @@ struct ContentView: View, ListViewOperable {
         case 0: return TextCell(item.title).nsView
         case 1: return TextCell(item.score).nsView
         case 2: return DatePickerCell(date: item.date).nsView
-        case 3: return DatePickerCell(date: item.optionalDate, nilView: {
-            Image(systemName: "plus.circle")
-        }).nsView
+        case 3: return DatePickerCell(date: item.optionalDate).nsView
         case 4: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()
         }
