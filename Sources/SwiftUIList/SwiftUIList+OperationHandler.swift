@@ -8,7 +8,7 @@
 import AppKit
 
 extension SwiftUIList {
-    func operationHandler(operation: ListOperation<Item>, outlineView: NSOutlineView, dataSource: OutlineViewDataSource<Item>) {
+    func operationHandler(operation: ListOperation<Item>, outlineView: OutlineView<Item>, dataSource: OutlineViewDataSource<Item>) {
         switch operation {
         case .reload(data: let data):
             self.data = data
@@ -71,6 +71,34 @@ extension SwiftUIList {
             }
 
             outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+        case .reorder(let items, parent: let parent):
+            guard !items.isEmpty else { return }
+            
+            let oldItems = outlineView.items(ofItem: parent)
+            let diff = items.difference(from: oldItems, by: { $0.id == $1.id }).inferringMoves()
+            
+            for change in diff {
+                switch change {
+                case .insert(offset: let offset, element: _, associatedWith: let prevOffset):
+                    if let prevOffset = prevOffset {
+                        outlineView.moveItem(at: prevOffset, inParent: parent, to: offset, inParent: parent)
+                    }
+                default: break
+                }
+            }
         }
+    }
+}
+
+extension OutlineView {
+    func items(ofItem item: Item?) -> [Item] {
+        var items = [Item]()
+        let numberOfChildren = numberOfChildren(ofItem: item)
+        
+        for index in 0..<numberOfChildren {
+            items.append(child(index, ofItem: item) as! Item)
+        }
+        
+        return items
     }
 }

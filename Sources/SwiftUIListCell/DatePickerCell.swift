@@ -14,9 +14,11 @@ public struct DatePickerCell: CellWrappable {
     
     public let doubleClickSubject = PassthroughSubject<Void, Never>()
     @State public var isEditing = false
+    @State private var internalDate: Date
     
     public init(date: Binding<Date>) {
         self._date = date
+        self._internalDate = State(initialValue: date.wrappedValue)
     }
     
     public var body: some View {
@@ -27,10 +29,15 @@ public struct DatePickerCell: CellWrappable {
                 
             }), canEdit: false)
                 .popover(isPresented: $isEditing) {
-                    DatePicker("", selection: $date)
+                    DatePicker("", selection: $internalDate)
                 }
                 .onReceive(doubleClickSubject) { _ in
                     isEditing = true
+                }
+                .onChange(of: isEditing) { isEditing in
+                    if !isEditing {
+                        date = internalDate
+                    }
                 }
         } else {
             // Fallback on earlier versions

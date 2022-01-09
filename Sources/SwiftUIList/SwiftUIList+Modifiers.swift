@@ -49,4 +49,11 @@ public extension SwiftUIList {
         
         return mutableSelf
     }
+    
+    func onItemChange(itemChange: @escaping ItemChange<Item>) -> Self {
+        var mutableSelf = self
+        mutableSelf.itemChanged = itemChange
+        
+        return mutableSelf
+    }
 }

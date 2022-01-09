@@ -16,7 +16,7 @@ public class ListViewController<Item: DataElement>: NSViewController where Item.
     let dataSource: OutlineViewDataSource<Item>
     let delegate: OutlineViewDelegate<Item>
     weak var operationSubject: OperationSubject<Item>?
-    var operationHandler: ((ListOperation<Item>, NSOutlineView, OutlineViewDataSource<Item>) -> Void)?
+    var operationHandler: ((ListOperation<Item>, OutlineView<Item>, OutlineViewDataSource<Item>) -> Void)?
     
     private var cancellables = Set<AnyCancellable>()
     

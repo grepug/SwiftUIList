@@ -13,6 +13,7 @@ public typealias DataElement = ListItemKind
 public typealias ListItemContentType<Item: DataElement> = (Int, Int, Binding<Item>) -> NSView
 public typealias ContextMenu<Item: DataElement> = ((Item, Int, Int) -> [ListItemContextMenu])
 public typealias OperationSubject<Item: DataElement> = PassthroughSubject<ListOperation<Item>, Never>
+public typealias ItemChange<Item: DataElement> = (Int, Int, Item) -> Void
 
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
@@ -35,6 +36,7 @@ public enum ListOperation<Item: DataElement> {
     case insertBefore(Item, before: Item?)
     case remove(Item)
     case reload(data: [Item])
+    case reorder([Item], parent: Item?)
 }
 
 public protocol ListViewOperable {
@@ -67,12 +69,19 @@ public extension ListViewOperable {
         Self.operations.send(.insertBefore(item, before: beforeItem))
     }
     
-    func insertItem(_ item: Item, after afterItem: Item) {
+    func insertItem(_ item: Item, after afterItem: Item?) {
         Self.operations.send(.insert(item, after: afterItem))
     }
     
     func removeItem(_ item: Item) {
         Self.operations.send(.remove(item))
+    }
+    
+    func reorderItems(newItems _items: [Item]? = nil, inParent parent: Item? = nil) {
+        DispatchQueue.main.async {
+            let items = _items ?? items()
+            Self.operations.send(.reorder(items, parent: parent))
+        }
     }
 }
 

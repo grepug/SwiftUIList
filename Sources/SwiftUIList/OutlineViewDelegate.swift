@@ -14,6 +14,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate wh
     let content: ListItemContentType<Item>
     let selectionChanged: SelectionChanged<Item>
     var columns: [ListItemColumn]?
+    var itemChanged: ItemChange<Item>?
     
     private var selectedItems: Set<Item>
     
@@ -34,7 +35,9 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate wh
         
         let binding = Binding<Item> {
             item
-        } set: { _ in
+        } set: { [weak self] newValue in
+            self?.itemChanged?(row, column, newValue)
+            
             if shouldReload {
                 outlineView.reloadItem(item, reloadChildren: false)
                 

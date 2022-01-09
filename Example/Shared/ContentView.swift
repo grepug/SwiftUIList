@@ -10,7 +10,11 @@ import SwiftUIList
 import SwiftUIListCell
 import Combine
 
-struct ContentView: View {
+struct ContentView: View, ListViewOperable {
+    func updateView() {
+        
+    }
+    
     typealias Item = Example.Item
     
     @State var data: [Item] = [.init(title: "1",
@@ -19,13 +23,16 @@ struct ContentView: View {
     @State var selection: Item?
     @State var selection2 = Set<Item>()
     
-    let operations = PassthroughSubject<ListOperation<Item>,Never>()
+    static let operations = OperationSubject<Item>()
+    func items() -> [Item] {
+        data
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SwiftUIList($data,
                         selection: $selection2,
-                        operationSubject: operations,
+                        operationSubject: Self.operations,
                         content: content)
                 .contextMenu(menu: { row, col, item in
                     [.init(title: "a") {
@@ -46,18 +53,21 @@ struct ContentView: View {
                     default: break
                     }
                 }
+                .onItemChange { row, col, item in
+                    print("@@", item)
+                }
             
             HStack {
                 Button {
                     let newItem = Item(title: "6")
-                    operations.send(.insert(newItem, after: selection2.first))
+                    insertItem(newItem, after: selection2.first)
                 } label: {
                     Image(systemName: "plus")
                 }
                 
                 Button {
                     if let item = selection2.first {
-                        operations.send(.remove(item))
+                        removeItem(item)
                     }
                 } label: {
                     Image(systemName: "minus")
@@ -69,10 +79,9 @@ struct ContentView: View {
     
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
-        case 0: return TextForCell(item.title).nsView
-        case 1: return TextForCell(item: item, double: \.score, onChange: ()).nsView
-//        case 2: return DatePickerCell(date: item.date).nsView
-        case 2: return TextForCell("").nsView
+        case 0: return TextForCell(item.title).cellWrappedView
+        case 1: return TextForCell(item: item, double: \.score, onChange: ()).cellWrappedView
+        case 2: return DatePickerCell(date: item.date).nsView
         case 3: return ToggleCell(isOn: item[keyPath: \.finished]).nsView
         default: fatalError()
         }

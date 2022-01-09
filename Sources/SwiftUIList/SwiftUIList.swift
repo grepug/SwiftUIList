@@ -16,7 +16,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
     var usingAlternatingRowBackgroundColors = false
     var drawingRowSeperators = false
     var allowingMultipleSelection = false
-    var itemChanged: ((Int, Int, Item) -> Void)?
+    var itemChanged: ItemChange<Item>?
     var operationSubject: OperationSubject<Item>?
     
     public init(_ data: Binding<Data>,
@@ -67,6 +67,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
         nsViewController.delegate.columns = columns
+        nsViewController.delegate.itemChanged = itemChanged
         nsViewController.operationHandler = operationHandler
         
         nsViewController.tableView.gridColor = .gridColor
