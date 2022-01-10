@@ -7,7 +7,15 @@
 
 import AppKit
 
-extension SwiftUIList {
+extension SwiftUIList where Item: AnyObject {
+    private func children(of parent: Item?) -> [Item]? {
+        if let parent = parent, let keyPath = childrenKeyPath {
+            return parent[keyPath: keyPath]
+        }
+        
+        return nil
+    }
+    
     func operationHandler(operation: ListOperation<Item>, outlineView: OutlineView<Item>, dataSource: OutlineViewDataSource<Item>) {
         switch operation {
         case .reload(data: let data):
@@ -19,53 +27,52 @@ extension SwiftUIList {
             
             if let afterItem = afterItem {
                 parent = outlineView.parent(forItem: afterItem) as? Item
-                index = (parent?.children ?? data).firstIndex(of: afterItem)! + 1
+                index = (children(of: parent) ?? data).firstIndex(of: afterItem)! + 1
             } else {
                 parent = nil
                 index = data.endIndex
             }
             
-            if let parent = parent {
-                parent.children?.insert(item, at: index)
+            if let parent = parent, let keyPath = childrenKeyPath {
+                parent[keyPath: keyPath]?.insert(item, at: index)
             } else {
                 data.insert(item, at: index)
             }
             
             outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
-            
         case .insertBefore(let item, before: let beforeItem):
             let parent: Item?
             let index: Int
             
             if let beforeItem = beforeItem {
                 parent = outlineView.parent(forItem: beforeItem) as? Item
-                index = (parent?.children ?? data).firstIndex(of: beforeItem)! - 1
+                index = (children(of: parent) ?? data).firstIndex(of: beforeItem)! - 1
             } else {
                 parent = nil
                 index = data.endIndex
             }
             
-            if let parent = parent {
-                parent.children?.insert(item, at: index)
+            if let parent = parent, let keyPath = childrenKeyPath {
+                parent[keyPath: keyPath]?.insert(item, at: index)
             } else {
                 data.insert(item, at: index)
             }
             
             outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
-        case .insert2(let item, offset: let offset, parent: let parent):
-            if let parent = parent {
-                parent.children?.insert(item, at: offset)
+        case .insert2(let item, offset: let index, parent: let parent):
+            if let parent = parent, let keyPath = childrenKeyPath {
+                parent[keyPath: keyPath]?.insert(item, at: index)
             } else {
-                data.insert(item, at: offset)
+                data.insert(item, at: index)
             }
             
-            outlineView.insertItems(at: [offset], inParent: parent, withAnimation: .effectFade)
+            outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
         case .remove(let item):
             let parent = outlineView.parent(forItem: item) as? Item
-            let index = (parent?.children ?? data).firstIndex(of: item)!
+            let index = (children(of: parent) ?? data).firstIndex(of: item)!
             
-            if let parent = parent {
-                parent.children?.remove(at: index)
+            if let parent = parent, let keyPath = childrenKeyPath {
+                parent[keyPath: keyPath]?.remove(at: index)
             } else {
                 data.remove(at: index)
             }

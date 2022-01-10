@@ -9,7 +9,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-public class ListViewController<Item: DataElement>: NSViewController where Item.Child == Item {
+public class ListViewController<Item: DataElement>: NSViewController {
     typealias Data = [Item]
     
     let tableView: OutlineView<Item>
@@ -21,6 +21,7 @@ public class ListViewController<Item: DataElement>: NSViewController where Item.
     private var cancellables = Set<AnyCancellable>()
     
     init(data: Data,
+         childrenKeyPath: ChildrenKeyPath<Item>?,
          operationSubject: OperationSubject<Item>?,
          contextMenu: ContextMenu<Item>?,
          content: @escaping ListItemContentType<Item>,
@@ -28,7 +29,7 @@ public class ListViewController<Item: DataElement>: NSViewController where Item.
          items: @escaping () -> Data) {
         
         tableView = OutlineView(items: data, contextMenu: contextMenu)
-        dataSource = .init(items: items)
+        dataSource = .init(items: items, childrenKeyPath: childrenKeyPath)
         delegate = .init(content: content,
                          selectionChanged: selectionChanged)
         self.operationSubject = operationSubject

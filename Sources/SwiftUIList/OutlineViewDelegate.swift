@@ -8,21 +8,24 @@
 import AppKit
 import SwiftUI
 
-class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate where Item.Child == Item {
+class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     typealias Data = [Item]
     
     let content: ListItemContentType<Item>
     let selectionChanged: SelectionChanged<Item>
+    let childrenKeyPath: ChildrenKeyPath<Item>?
     var columns: [ListItemColumn]?
     var itemChanged: ItemChange<Item>?
     
     private var selectedItems: Set<Item>
     
     init(content: @escaping ListItemContentType<Item>,
-         selectionChanged: @escaping SelectionChanged<Item>) {
+         selectionChanged: @escaping SelectionChanged<Item>,
+         childrenKeyPath: ChildrenKeyPath<Item>? = nil) {
         self.content = content
         self.selectionChanged = selectionChanged
         self.selectedItems = []
+        self.childrenKeyPath = childrenKeyPath
         
         super.init()
     }
@@ -142,7 +145,7 @@ private extension OutlineViewDelegate {
     func isChildrenSelected(outlineView: NSOutlineView, item: Item) -> Bool {
         let selectedRows = outlineView.selectedRowIndexes
         
-        if let children = item.children {
+        if let keyPath = childrenKeyPath, let children = item[keyPath: keyPath] {
             for item in children {
                 let row = outlineView.row(forItem: item)
                 
@@ -165,8 +168,8 @@ private extension OutlineViewDelegate {
                 items[i] = newItem
             }
             
-            if let children = item.children {
-                items[i].children = updateNewItem(newItem, items: children)
+            if let keyPath = childrenKeyPath, let children = item[keyPath: keyPath] {
+                items[i][keyPath: keyPath] = updateNewItem(newItem, items: children)
             }
         }
         

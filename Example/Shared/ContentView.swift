@@ -32,6 +32,7 @@ struct ContentView: View, ListViewOperable {
         VStack(alignment: .leading, spacing: 0) {
             SwiftUIList($data,
                         selection: $selection2,
+                        children: \.children,
                         operationSubject: Self.operations,
                         content: content)
                 .contextMenu(menu: { row, col, item in

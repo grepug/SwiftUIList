@@ -2,11 +2,12 @@ import SwiftUI
 import AppKit
 import Combine
 
-public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable where Item.Child == Item {
+public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     public typealias NSViewControllerType = ListViewController<Item>
     public typealias Data = [Item]
     
-    @Binding var data: Data
+    @Binding var data: [Item]
+    var childrenKeyPath: ChildrenKeyPath<Item>?
     @Binding var selection: Set<Data.Element>
     var contextMenu: ContextMenu<Item>?
     var columns: [ListItemColumn] = [.init(title: "")]
@@ -19,8 +20,9 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
     var itemChanged: ItemChange<Item>?
     var operationSubject: OperationSubject<Item>?
     
-    public init(_ data: Binding<Data>,
-                selection: Binding<Data.Element?>,
+    public init(_ data: Binding<[Item]>,
+                selection: Binding<Item?>,
+                children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
                 content: @escaping ListItemContentType<Item>) {
         self._selection = .init {
@@ -36,10 +38,12 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
         self.content = content
         self._data = data
         self.operationSubject = operationSubject
+        self.childrenKeyPath = childrenKeyPath
     }
     
     public init(_ data: Binding<Data>,
                 selection: Binding<Set<Data.Element>>,
+                children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
                 content: @escaping ListItemContentType<Item>) {
         self._data = data
@@ -47,15 +51,17 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
         self.content = content
         self.allowingMultipleSelection = true
         self.operationSubject = operationSubject
+        self.childrenKeyPath = childrenKeyPath
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
         let vc = NSViewControllerType(data: data,
-              operationSubject: operationSubject,
-              contextMenu: contextMenu,
-              content: content,
-              selectionChanged: { selection = $0 },
-              items: { data })
+                                      childrenKeyPath: childrenKeyPath,
+                                      operationSubject: operationSubject,
+                                      contextMenu: contextMenu,
+                                      content: content,
+                                      selectionChanged: { selection = $0 },
+                                      items: { data })
         
         return vc
     }
@@ -68,7 +74,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable wher
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
         nsViewController.delegate.columns = columns
         nsViewController.delegate.itemChanged = itemChanged
-        nsViewController.operationHandler = operationHandler
+//        nsViewController.operationHandler = operationHandler
         
         nsViewController.tableView.gridColor = .gridColor
         nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []

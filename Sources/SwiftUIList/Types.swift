@@ -9,19 +9,23 @@ import AppKit
 import SwiftUI
 import Combine
 
-public typealias DataElement = ListItemKind
+public typealias DataElement = Hashable & Identifiable
 public typealias ListItemContentType<Item: DataElement> = (Int, Int, Binding<Item>) -> NSView
 public typealias ContextMenu<Item: DataElement> = ((Item, Int, Int) -> [ListItemContextMenu])
 public typealias OperationSubject<Item: DataElement> = PassthroughSubject<ListOperation<Item>, Never>
 public typealias ItemChange<Item: DataElement> = (Int, Int, Item) -> Void
+public typealias ChildrenKeyPath<Item> = ReferenceWritableKeyPath<Item, [Item]?>
 
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
-public protocol ListItemKind: AnyObject, Hashable, Identifiable {
+public protocol ListItemKind: Hashable, Identifiable {
     
     associatedtype Child: ListItemKind
     
     var children: [Child]? { get set }
+    
+    func insert(to children: inout [Child], at index: Int)
+    static func remove(from children: inout [Child], at index: Int)
 }
 
 public extension ListItemKind {

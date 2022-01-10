@@ -44,6 +44,14 @@ struct Sidebar: View {
 }
 
 class Node: ListItemKind {
+    func insert(to children: inout [Node], at index: Int) {
+        children.insert(self, at: index)
+    }
+    
+    static func remove(from children: inout [Node], at index: Int) {
+        children.remove(at: index)
+    }
+    
     static func == (lhs: Node, rhs: Node) -> Bool {
         lhs.id == rhs.id
     }
