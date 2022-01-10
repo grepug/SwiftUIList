@@ -60,9 +60,7 @@ struct ContentView: View, ListViewOperable {
                 }
                 
                 Button {
-                    if let item = selection2.first {
-                        removeItem(item)
-                    }
+                    selection2.forEach(removeItem)
                 } label: {
                     Image(systemName: "minus")
                 }
@@ -84,6 +82,14 @@ struct ContentView: View, ListViewOperable {
 }
 
 class Item: ListItemKind {
+    func insert(to children: inout [Item], at index: Int) {
+        children.insert(self, at: index)
+    }
+    
+    static func remove(from children: inout [Item], at index: Int) {
+        children.remove(at: index)
+    }
+    
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }
