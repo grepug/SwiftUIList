@@ -19,11 +19,13 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     var allowingMultipleSelection = false
     var itemChanged: ItemChange<Item>?
     var operationSubject: OperationSubject<Item>?
+    var rowHeight: CGFloat?
     
     public init(_ data: Binding<[Item]>,
                 selection: Binding<Item?>,
                 children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
+                rowHeight: CGFloat? = nil,
                 content: @escaping ListItemContentType<Item>) {
         self._selection = .init {
             if let sel = selection.wrappedValue {
@@ -39,12 +41,14 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         self._data = data
         self.operationSubject = operationSubject
         self.childrenKeyPath = childrenKeyPath
+        self.rowHeight = rowHeight
     }
     
     public init(_ data: Binding<Data>,
                 selection: Binding<Set<Data.Element>>,
                 children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
+                rowHeight: CGFloat? = nil,
                 content: @escaping ListItemContentType<Item>) {
         self._data = data
         self._selection = selection
@@ -52,6 +56,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         self.allowingMultipleSelection = true
         self.operationSubject = operationSubject
         self.childrenKeyPath = childrenKeyPath
+        self.rowHeight = rowHeight
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
@@ -65,7 +70,9 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
+        nsViewController.delegate.rowHeight = rowHeight
         nsViewController.setupColumns(columns)
+        
         if childrenKeyPath == nil {
             nsViewController.updateData(newItems: data)
         } else {

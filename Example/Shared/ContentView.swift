@@ -34,6 +34,7 @@ struct ContentView: View, ListViewOperable {
             SwiftUIList($data,
                         selection: $selection2,
                         operationSubject: Self.operations,
+                        rowHeight: 50,
                         content: content)
                 .contextMenu(menu: { row, col, item in
                     [.init(title: "a") {

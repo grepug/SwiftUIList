@@ -16,6 +16,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     let childrenKeyPath: ChildrenKeyPath<Item>?
     var columns: [ListItemColumn]?
     var itemChanged: ItemChange<Item>?
+    var rowHeight: CGFloat?
     
     private var selectedItems: Set<Item>
     
@@ -58,7 +59,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     }
     
     func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-        24
+        rowHeight ?? 24
     }
     
     func outlineViewItemDidExpand(_ notification: Notification) {
