@@ -19,7 +19,8 @@ struct ContentView: View, ListViewOperable {
     
     @State var data: [Item] = [.init(title: "1",
                                      children: [.init(title: "2",
-                                                      children: [.init(title: "3")])])]
+                                                      children: [.init(title: "3")])]),
+                               .init(title: "a")]
     @State var selection: Item?
     @State var selection2 = Set<Item>()
     
@@ -32,7 +33,6 @@ struct ContentView: View, ListViewOperable {
         VStack(alignment: .leading, spacing: 0) {
             SwiftUIList($data,
                         selection: $selection2,
-                        children: \.children,
                         operationSubject: Self.operations,
                         content: content)
                 .contextMenu(menu: { row, col, item in
@@ -54,14 +54,15 @@ struct ContentView: View, ListViewOperable {
             HStack {
                 Button {
                     let newItem = Item(title: "6")
-                    insertItem(newItem, after: selection2.first)
-                    becomeFirstResponder(item: newItem, atColumn: 0)
+                    data.append(newItem)
+//                    insertItem(newItem, after: selection2.first)
+//                    becomeFirstResponder(item: newItem, atColumn: 0)
                 } label: {
                     Image(systemName: "plus")
                 }
                 
                 Button {
-                    selection2.forEach(removeItem)
+                    data.removeAll(where: { selection2.contains($0) })
                 } label: {
                     Image(systemName: "minus")
                 }

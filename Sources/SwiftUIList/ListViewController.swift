@@ -77,22 +77,33 @@ public class ListViewController<Item: DataElement>: NSViewController {
 }
 
 extension ListViewController {
-//    func updateData(newValue: Data) {
-//        let newState = newValue
-//
-//        tableView.beginUpdates()
-//
-//        let oldState = dataSource.items
-//        delegate.items = newState
-//        
-//        updater.performUpdates(
-//            tableView: tableView,
-//            oldState: oldState,
-//            newState: newState,
-//            parent: nil)
-//
-//        tableView.endUpdates()
-//    }
+    func updateData(newItems: [Item]) {
+        let oldItems = dataSource.cachedItems
+        dataSource.cachedItems = newItems
+        
+        let diff = newItems.difference(from: oldItems, by: { $0.id == $1.id }).inferringMoves()
+        var movedIds = Set<Item.ID>()
+        
+        tableView.beginUpdates()
+        
+        for change in diff {
+            switch change {
+            case .insert(offset: let index, element: let item, associatedWith: let prevIndex):
+                if let prevIndex = prevIndex {
+                    tableView.moveItem(at: prevIndex, inParent: nil, to: index, inParent: nil)
+                    movedIds.insert(item.id)
+                } else {
+                    tableView.insertItems(at: [index], inParent: nil, withAnimation: .effectFade)
+                }
+            case .remove(offset: let index, element: let item, _):
+                if !movedIds.contains(item.id) {
+                    tableView.removeItems(at: [index], inParent: nil, withAnimation: .effectFade)
+                }
+            }
+        }
+
+        tableView.endUpdates()
+    }
     
     func changeSelectedItem(to item: Set<Item>) {
         delegate.changeSelectedItem(
