@@ -17,7 +17,7 @@ struct ContentView: View, ListViewOperable {
     
     typealias Item = Example.Item
     
-    @State var data: [Item] = [.init(title: "1",
+    @State var data: [Item] = [.init(title: "1xxxxxxxxxxxxx",
                                      children: [.init(title: "2",
                                                       children: [.init(title: "3")])]),
                                .init(title: "a")]

@@ -32,20 +32,27 @@ public struct TextCell<LeadingView: View>: CellWrappable {
         if let view = leadingView {
             HStack {
                 view(cell.isSelected)
-                content
+                text
             }
         } else {
-            content
+            text
         }
     }
     
-    var content: some View {
-        TextCellView(text: $internalText,
-                     validator: textValidator,
-                     canEdit: canEdit) {
-            onChange?(internalText)
-        } onDoubleClick: {
-            onDoubleClick?()
+    @ViewBuilder
+    var text: some View {
+        if canEdit {
+            TextCellView(text: $internalText,
+                         validator: textValidator,
+                         canEdit: canEdit) {
+                onChange?(internalText)
+            } onDoubleClick: {
+                onDoubleClick?()
+            }
+        } else {
+            Text(internalText)
+                .foregroundColor(cell.textColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
