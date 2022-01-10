@@ -79,10 +79,14 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
                                         .compactMap { outlineView.item(atRow: $0) }
                                         .map { self.typedItem(item: $0) })
                 
-                selectionChanged(selection)
+                DispatchQueue.main.async { [weak self] in
+                    self?.selectionChanged(selection)
+                }
             }
         } else {
-            selectionChanged([])
+            DispatchQueue.main.async { [weak self] in
+                self?.selectionChanged([])
+            }
         }
     }
     

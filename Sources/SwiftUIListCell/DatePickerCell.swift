@@ -17,6 +17,8 @@ public struct DatePickerCell: CellWrappable {
     private var formatter: (Date?) -> String
     private var hasPlusButton: Bool = false
     
+    @EnvironmentObject var cell: CellWrapper<Self>
+    
     public init(date: Binding<Date>, formatter: ((Date) -> String)? = nil) {
         self.optionalDate = false
         self._date = .init(get: {
@@ -49,22 +51,20 @@ public struct DatePickerCell: CellWrappable {
     public var body: some View {
         HStack {
             if optionalDate && internalDate != nil {
-                Button {
+                button {
                     date = nil
                     internalDate = nil
                 } label: {
                     Image(systemName: "minus.circle")
                 }
-                .buttonStyle(.plain)
             }
             
             if optionalDate && internalDate == nil && hasPlusButton {
-                Button {
+                button {
                     isEditing = true
                 } label: {
                     Image(systemName: "plus.circle")
                 }
-                .buttonStyle(.plain)
                 .frame(maxWidth: .infinity, alignment: .bottomLeading)
             } else {
                 TextCellView(text: .constant(formatter(internalDate)),
@@ -90,6 +90,19 @@ public struct DatePickerCell: CellWrappable {
                     }
                 }
             }
+    }
+}
+
+extension DatePickerCell {
+    func button<Content: View>(action: @escaping () -> Void,
+                               @ViewBuilder label: @escaping () -> Content) -> some View {
+        Button {
+            action()
+        } label: {
+            label()
+                .foregroundColor(cell.textColor)
+        }
+        .buttonStyle(.plain)
     }
 }
 

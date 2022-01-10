@@ -55,15 +55,13 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
-        let vc = NSViewControllerType(data: data,
-                                      childrenKeyPath: childrenKeyPath,
-                                      operationSubject: operationSubject,
-                                      contextMenu: contextMenu,
-                                      content: content,
-                                      selectionChanged: { selection = $0 },
-                                      items: { data })
-        
-        return vc
+        .init(data: data,
+              childrenKeyPath: childrenKeyPath,
+              operationSubject: operationSubject,
+              contextMenu: contextMenu,
+              content: content,
+              selectionChanged: { selection = $0 },
+              items: { data })
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
