@@ -13,9 +13,9 @@ public enum ListOperation<Item: DataElement> {
     case insert2(Item, offset: Int, parent: Item?)
     case insertBefore(Item, before: Item?)
     case insertChild(Item, inParent: Item?)
-    case remove(Item)
+    case remove(Item, shouldRemove: Bool)
     case reload(data: [Item])
-    case reloadItem(Item, reloadingChildren: Bool)
+    case reloadItem(Item?, reloadingChildren: Bool)
     case reorder([Item], parent: Item?)
     case becomeFirstResponder(Item, column: Int)
     case expand(Item?, expandChildren: Bool)
@@ -27,6 +27,8 @@ public protocol ListViewOperable {
     
     func items() -> [Item]
     func updateView()
+    
+    func remove(item: Item) -> Bool
     
     static var operations: OperationSubject<Item> { get }
 }
@@ -69,7 +71,8 @@ public extension ListViewOperable {
     }
     
     func removeItem(_ item: Item) {
-        Self.operations.send(.remove(item))
+        let removed = remove(item: item)
+        Self.operations.send(.remove(item, shouldRemove: !removed))
     }
     
     func reorderItems(newItems _items: [Item]? = nil, inParent parent: Item? = nil) {
@@ -126,16 +129,5 @@ public extension ListViewOperable {
         }
         
         return list
-    }
-}
-
-public extension ListViewOperable where Item: NSManagedObject {
-    func removeItem(_ item: Item) {
-        guard let context = item.managedObjectContext else { return }
-        
-        Self.operations.send(.remove(item))
-        context.delete(item)
-        try? context.save()
-        updateView()
     }
 }

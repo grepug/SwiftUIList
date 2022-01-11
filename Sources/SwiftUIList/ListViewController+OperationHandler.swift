@@ -86,16 +86,21 @@ extension ListViewController {
             } else {
                 
             }
-        case .remove(let item):
-            let parent = outlineView.parent(forItem: item) as? Item
-            let index = (children(of: parent) ?? oldData).firstIndex(of: item)!
-            
-            if let parent = parent, let keyPath = childrenKeyPath {
-                parent[keyPath: keyPath]?.remove(at: index)
-            } else {
-                oldData.remove(at: index)
-                dataChanged(oldData)
+        case .remove(let item, shouldRemove: let shouldRemove):
+            if shouldRemove {
+                let parent = outlineView.parent(forItem: item) as? Item
+                let index = (children(of: parent) ?? oldData).firstIndex(of: item)!
+                
+                if let parent = parent, let keyPath = childrenKeyPath {
+                    parent[keyPath: keyPath]?.remove(at: index)
+                } else {
+                    oldData.remove(at: index)
+                    dataChanged(oldData)
+                }
             }
+            
+            let index = outlineView.childIndex(forItem: item)
+            let parent = outlineView.parent(forItem: item)
 
             outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
         case .reorder(let items, parent: let parent):
@@ -153,4 +158,20 @@ extension OutlineView {
         
         return items
     }
+    
+    
+    func remove(prevItems: [Item],
+                currentItems: [Item],
+                inParent parent: Item?) {
+        let diff = currentItems.difference(from: prevItems)
+        
+        for change in diff.steps {
+            switch change {
+            case .remove(_, at: let index):
+                removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+            default: break
+            }
+        }
+    }
 }
+

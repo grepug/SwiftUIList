@@ -11,9 +11,11 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View, ListViewOperable {
-    func updateView() {
-        
+    func remove(item: Item) -> Bool {
+        false
     }
+    
+    func updateView() {}
     
     typealias Item = Example.Item
     
