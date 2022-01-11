@@ -29,7 +29,7 @@ class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSourc
     
     func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
         if let childrenKeyPath = childrenKeyPath {
-            return typedItem(item)[keyPath: childrenKeyPath] != nil
+            return typedItem(item)[keyPath: childrenKeyPath]?.isEmpty == false
         }
         
         return false

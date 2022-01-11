@@ -67,11 +67,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
     }
     
     public override func loadView() {
-        if scrollViewWrapped {
-            view = NSScrollView(frame: .zero)
-        } else {
-            view = NSView(frame: .zero)
-        }
+        view = NSScrollView(frame: .zero)
     }
     
     public override func viewDidLoad() {
