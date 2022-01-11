@@ -59,7 +59,7 @@ struct ContentView: View, ListViewOperable {
                 }
                 .onAppear {
                     reloadList()
-                    Self.operations.send(.expandAll)
+                    expand()
                 }
             
             HStack {
