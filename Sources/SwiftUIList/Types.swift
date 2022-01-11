@@ -48,7 +48,7 @@ public enum ListOperation<Item: DataElement> {
 }
 
 public protocol ListViewOperable {
-    associatedtype Item: ListItemKind
+    associatedtype Item: DataElement
     
     func items() -> [Item]
     func updateView()
