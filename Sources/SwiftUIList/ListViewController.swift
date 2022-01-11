@@ -16,6 +16,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
     weak var operationSubject: OperationSubject<Item>?
     var childrenKeyPath: ChildrenKeyPath<Item>?
     var dataChanged: DataChange<Item>
+    var scrollViewWrapped: Bool
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -23,6 +24,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
          childrenKeyPath: ChildrenKeyPath<Item>?,
          operationSubject: OperationSubject<Item>?,
          contextMenu: ContextMenu<Item>?,
+         scrollViewWrapped: Bool,
          content: @escaping ListItemContentType<Item>,
          selectionChanged: @escaping SelectionChanged<Item>,
          dataChanged: @escaping DataChange<Item>) {
@@ -33,12 +35,25 @@ public class ListViewController<Item: DataElement>: NSViewController {
         self.childrenKeyPath = childrenKeyPath
         self.operationSubject = operationSubject
         self.dataChanged = dataChanged
+        self.scrollViewWrapped = scrollViewWrapped
         
         super.init(nibName: nil, bundle: nil)
         
-        let scrollView = view as! NSScrollView
-        scrollView.documentView = tableView
-        scrollView.hasVerticalScroller = true
+        if scrollViewWrapped {
+            let scrollView = view as! NSScrollView
+            scrollView.documentView = tableView
+            scrollView.hasVerticalScroller = true
+        } else {
+            view.addSubview(tableView)
+            
+            tableView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                tableView.topAnchor.constraint(equalTo: view.topAnchor),
+                tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        }
         
         tableView.dataSource = dataSource
         tableView.delegate = delegate
@@ -52,7 +67,11 @@ public class ListViewController<Item: DataElement>: NSViewController {
     }
     
     public override func loadView() {
-        view = NSScrollView(frame: .zero)
+        if scrollViewWrapped {
+            view = NSScrollView(frame: .zero)
+        } else {
+            view = NSView(frame: .zero)
+        }
     }
     
     public override func viewDidLoad() {
