@@ -19,6 +19,7 @@ public enum ListOperation<Item: DataElement> {
     case reorder([Item], parent: Item?)
     case becomeFirstResponder(Item, column: Int)
     case expand(Item?, expandChildren: Bool)
+    case move(Item, to: Item?)
 }
 
 public protocol ListViewOperable {
@@ -82,6 +83,49 @@ public extension ListViewOperable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             Self.operations.send(.becomeFirstResponder(item, column: column))
         }
+    }
+}
+
+public extension ListViewOperable {
+    func makeMoveToMenu<T>(item: Item,
+                           children: KeyPath<Item, T>,
+                           title: @escaping (Item) -> String,
+                           action: @escaping (Item) -> Void) -> [ListItemContextMenu] {
+        let list = Self.makeMoveToList(fromItem: item,
+                                       children: items(),
+                                       childrenKeyPath: children)
+        
+        return list.map { item, level in
+            let spacings = Array(repeating: "    ", count: level).joined(separator: "")
+            let title = spacings + title(item)
+            
+            return .init(title: title) {
+                action(item)
+            }
+        }
+    }
+    
+    private static func makeMoveToList<T>(fromItem: Item,
+                                  children: [Item],
+                                  childrenKeyPath: KeyPath<Item, T>,
+                                  level: Int = 0) -> [(Item, Int)] {
+        var list = [(Item, Int)]()
+        
+        for item in children {
+            guard item.id != fromItem.id else { continue }
+            
+            list.append((item, level))
+            
+            if let childrenOptional = item[keyPath: childrenKeyPath] as? [Item]?,
+               let children = childrenOptional {
+                list.append(contentsOf: makeMoveToList(fromItem: fromItem,
+                                                       children: children,
+                                                       childrenKeyPath: childrenKeyPath,
+                                                       level: level + 1))
+            }
+        }
+        
+        return list
     }
 }
 

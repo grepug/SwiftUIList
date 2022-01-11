@@ -43,7 +43,14 @@ struct ContentView: View, ListViewOperable {
                     }),
                      .init(title: "删除", action: {
                         removeItem(item)
-                    })
+                    }),
+                     .init(title: "Move to",
+                           children: makeMoveToMenu(item: item,
+                                                    children: \.children,
+                                                    title: { $0.title },
+                                                    action: { targetItem in
+                        Self.operations.send(.move(item, to: targetItem))
+                    }))
                     ]
                 })
                 .columns([

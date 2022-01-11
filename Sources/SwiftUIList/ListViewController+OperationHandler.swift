@@ -124,6 +124,20 @@ extension ListViewController {
             DispatchQueue.main.async {
                 outlineView.expandItem(item, expandChildren: expandChildren)
             }
+        case .move(let item, to: let targetParent):
+            if let parent = outlineView.parent(forItem: item) as? Item {
+                let index = outlineView.childIndex(forItem: item)
+                outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+            } else {
+                let index = outlineView.childIndex(forItem: item)
+                outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+            }
+            
+            outlineView.reloadItem(targetParent, reloadChildren: true)
+            
+            DispatchQueue.main.async {
+                outlineView.expandItem(targetParent, expandChildren: false)
+            }
         }
     }
 }
