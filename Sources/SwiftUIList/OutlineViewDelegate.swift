@@ -22,7 +22,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
     
     init(content: @escaping ListItemContentType<Item>,
          selectionChanged: @escaping SelectionChanged<Item>,
-         childrenKeyPath: ChildrenKeyPath<Item>? = nil) {
+         childrenKeyPath: ChildrenKeyPath<Item>?) {
         self.content = content
         self.selectionChanged = selectionChanged
         self.selectedItems = []
@@ -95,6 +95,7 @@ class OutlineViewDelegate<Item: DataElement>: NSObject, NSOutlineViewDelegate {
         guard let item = notification.userInfo?.first?.value as? Item else {
             return
         }
+        
         let outlineView = notification.object as! NSOutlineView
         let isChildrenSelected = isChildrenSelected(outlineView: outlineView, item: item)
         

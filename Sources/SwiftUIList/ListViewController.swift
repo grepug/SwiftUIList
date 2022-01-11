@@ -31,7 +31,8 @@ public class ListViewController<Item: DataElement>: NSViewController {
         tableView = OutlineView(items: data, contextMenu: contextMenu)
         dataSource = .init(childrenKeyPath: childrenKeyPath)
         delegate = .init(content: content,
-                         selectionChanged: selectionChanged)
+                         selectionChanged: selectionChanged,
+                         childrenKeyPath: childrenKeyPath)
         self.childrenKeyPath = childrenKeyPath
         self.operationSubject = operationSubject
         self.dataChanged = dataChanged
