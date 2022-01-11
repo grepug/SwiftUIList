@@ -43,7 +43,7 @@ struct Sidebar: View {
     }
 }
 
-class Node: ListItemKind {
+class Node: DataElement {
     func insert(to children: inout [Node], at index: Int) {
         children.insert(self, at: index)
     }

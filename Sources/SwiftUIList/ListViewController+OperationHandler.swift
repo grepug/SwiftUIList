@@ -120,6 +120,10 @@ extension ListViewController {
             if let textField = view?.subviews(ofType: NSTextField.self).first {
                 textField.becomeFirstResponder()
             }
+        case .expandAll:
+            DispatchQueue.main.async {
+                outlineView.expandItem(nil, expandChildren: true)
+            }
         }
     }
 }

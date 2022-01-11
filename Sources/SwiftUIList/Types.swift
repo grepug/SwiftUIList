@@ -19,22 +19,6 @@ public typealias DataChange<Item> = ([Item]) -> Void
 
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
-public protocol ListItemKind: AnyObject, Hashable, Identifiable {
-    
-    associatedtype Child: ListItemKind = Self
-    
-    var children: [Child]? { get set }
-    
-    func insert(to children: inout [Child], at index: Int)
-    static func remove(from children: inout [Child], at index: Int)
-}
-
-public extension ListItemKind {
-    func isEqual(to item: Self) -> Bool {
-        item.id == id
-    }
-}
-
 public enum ListOperation<Item: DataElement> {
     case insert(Item, after: Item?)
     case insert2(Item, offset: Int, parent: Item?)
@@ -45,6 +29,7 @@ public enum ListOperation<Item: DataElement> {
     case reloadItem(Item, reloadingChildren: Bool)
     case reorder([Item], parent: Item?)
     case becomeFirstResponder(Item, column: Int)
+    case expandAll
 }
 
 public protocol ListViewOperable {

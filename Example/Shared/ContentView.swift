@@ -59,6 +59,7 @@ struct ContentView: View, ListViewOperable {
                 }
                 .onAppear {
                     reloadList()
+                    Self.operations.send(.expandAll)
                 }
             
             HStack {
@@ -96,7 +97,7 @@ struct ContentView: View, ListViewOperable {
     }
 }
 
-class Item: ListItemKind {
+class Item: DataElement {
     func insert(to children: inout [Item], at index: Int) {
         children.insert(self, at: index)
     }
