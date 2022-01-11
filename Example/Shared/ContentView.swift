@@ -11,8 +11,30 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View, ListViewOperable {
-    func remove(item: Item) -> Bool {
-        false
+
+    func _remove(item: Item, inParent parent: Item?, at index: Int) {
+        if let parent = parent {
+            parent.children?.remove(at: index)
+        } else {
+            data.remove(at: index)
+        }
+    }
+    
+    func _insert(item: Item, into parent: Item?) -> ListItemInsertionInfo<Item> {
+        let prevIds = parent?.children?.map(\.id) ?? data.map(\.id)
+        
+        if let parent = parent {
+            let children = parent.children ?? []
+            parent.children = children
+            
+            parent.children?.insert(item, at: children.endIndex)
+        } else {
+            data.insert(item, at: data.endIndex)
+        }
+        
+        let ids = parent?.children?.map(\.id) ?? data.map(\.id)
+        
+        return .init(prevIds: prevIds, ids: ids)
     }
     
     func updateView() {}
@@ -38,20 +60,20 @@ struct ContentView: View, ListViewOperable {
                         children: \.children,
                         operationSubject: Self.operations,
                         content: content)
-                .contextMenu(menu: { item, row, col in
+                .contextMenu(menu: { info in
                     [.init(title: "添加子节点", action: {
                         let newItem = Item(title: "7")
-                        insertChild(newItem, inParent: item)
+                        insertItem(newItem, into: info.item)
                     }),
                      .init(title: "删除", action: {
-                        removeItem(item)
+                        removeItem(info.item, inParent: info.parent, at: info.childIndex)
                     }),
                      .init(title: "Move to",
-                           children: makeMoveToMenu(item: item,
+                           children: makeMoveToMenu(item: info.item,
                                                     children: \.children,
-                                                    title: { $0.title },
+                                                    title: { $0?.title ?? "根节点" },
                                                     action: { targetItem in
-                        Self.operations.send(.move(item, to: targetItem))
+                        moveItem(info.item, inParent: info.parent, at: info.childIndex, to: targetItem)
                     }))
                     ]
                 })
@@ -74,14 +96,14 @@ struct ContentView: View, ListViewOperable {
             HStack {
                 Button {
                     let newItem = Item(title: "6")
-                    insertItem(newItem, after: selection2.first)
+                    insertItem(newItem, into: nil)
                     becomeFirstResponder(item: newItem, atColumn: 0)
                 } label: {
                     Image(systemName: "plus")
                 }
                 
                 Button {
-                    selection2.forEach(removeItem)
+//                    selection2.forEach(removeItem)
                 } label: {
                     Image(systemName: "minus")
                 }
@@ -107,14 +129,6 @@ struct ContentView: View, ListViewOperable {
 }
 
 class Item: DataElement {
-    func insert(to children: inout [Item], at index: Int) {
-        children.insert(self, at: index)
-    }
-    
-    static func remove(from children: inout [Item], at index: Int) {
-        children.remove(at: index)
-    }
-    
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }

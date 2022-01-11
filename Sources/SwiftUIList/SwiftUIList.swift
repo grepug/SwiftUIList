@@ -81,6 +81,8 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         
         if childrenKeyPath == nil {
             nsViewController.updateData(newItems: data)
+        } else {
+            nsViewController.dataSource.items = data
         }
         
         nsViewController.changeSelectedItem(to: selection)

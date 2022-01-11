@@ -9,17 +9,14 @@ import Foundation
 import CoreData
 
 public enum ListOperation<Item: DataElement> {
-    case insert(Item, after: Item?)
-    case insert2(Item, offset: Int, parent: Item?)
-    case insertBefore(Item, before: Item?)
-    case insertChild(Item, inParent: Item?)
-    case remove(Item, shouldRemove: Bool)
+    case inserted(IndexSet, parent: Item?)
+    case removed(Int, parent: Item?)
     case reload(data: [Item])
     case reloadItem(Item?, reloadingChildren: Bool)
     case reorder([Item], parent: Item?)
     case becomeFirstResponder(Item, column: Int)
     case expand(Item?, expandChildren: Bool)
-    case move(Item, to: Item?)
+    case moved(Int, parent: Item?, toIndex: Int, toParent: Item?)
 }
 
 public protocol ListViewOperable {
@@ -28,7 +25,8 @@ public protocol ListViewOperable {
     func items() -> [Item]
     func updateView()
     
-    func remove(item: Item) -> Bool
+    func _remove(item: Item, inParent parent: Item?, at index: Int)
+    func _insert(item: Item, into parent: Item?) -> ListItemInsertionInfo<Item>
     
     static var operations: OperationSubject<Item> { get }
 }
@@ -50,29 +48,42 @@ public extension ListViewOperable {
         Self.operations.send(.reloadItem(item, reloadingChildren: reloadingChildren))
     }
     
-    func insertItem(_ item: Item, at index: Int, inParent parent: Item? = nil) {
-        Self.operations.send(.insert2(item, offset: index, parent: parent))
+    private func indexSetForInsertion(_ item: Item, into parent: Item?) -> IndexSet {
+        let info = _insert(item: item, into: parent)
+        let diff = info.ids.difference(from: info.prevIds)
+        var indexSet = IndexSet()
+        
+        for change in diff.steps {
+            switch change {
+            case .insert(_, at: let index):
+                indexSet.insert(index)
+            default: break
+            }
+        }
+        
+        return indexSet
     }
     
-    func insertItem(_ item: Item) {
-        Self.operations.send(.insert(item, after: nil))
+    func insertItem(_ item: Item, into parent: Item?) {
+        let info = _insert(item: item, into: parent)
+        
+        DispatchQueue.main.async {
+            Self.operations.send(.inserted(info.insertedIndexSet, parent: parent))
+        }
     }
     
-    func insertItem(_ item: Item, before beforeItem: Item) {
-        Self.operations.send(.insertBefore(item, before: beforeItem))
+    func removeItem(_ item: Item, inParent parent: Item?, at index: Int) {
+        _remove(item: item, inParent: parent, at: index)
+        Self.operations.send(.removed(index, parent: parent))
     }
     
-    func insertItem(_ item: Item, after afterItem: Item?) {
-        Self.operations.send(.insert(item, after: afterItem))
-    }
-    
-    func insertChild(_ item: Item, inParent parent: Item? = nil) {
-        Self.operations.send(.insertChild(item, inParent: parent))
-    }
-    
-    func removeItem(_ item: Item) {
-        let removed = remove(item: item)
-        Self.operations.send(.remove(item, shouldRemove: !removed))
+    func moveItem(_ item: Item, inParent parent: Item?, at index: Int, to targetParent: Item?) {
+        _remove(item: item, inParent: parent, at: index)
+        let info = _insert(item: item, into: targetParent)
+
+        DispatchQueue.main.async {
+            Self.operations.send(.moved(index, parent: parent, toIndex: info.insertedIndexSet.first!, toParent: targetParent))
+        }
     }
     
     func reorderItems(newItems _items: [Item]? = nil, inParent parent: Item? = nil) {
@@ -92,13 +103,17 @@ public extension ListViewOperable {
 public extension ListViewOperable {
     func makeMoveToMenu<T>(item: Item,
                            children: KeyPath<Item, T>,
-                           title: @escaping (Item) -> String,
-                           action: @escaping (Item) -> Void) -> [ListItemContextMenu] {
+                           title: @escaping (Item?) -> String,
+                           action: @escaping (Item?) -> Void) -> [ListItemContextMenu] {
         let list = Self.makeMoveToList(fromItem: item,
                                        children: items(),
                                        childrenKeyPath: children)
         
-        return list.map { item, level in
+        let rootItem = ListItemContextMenu(title: title(nil)) {
+            action(nil)
+        }
+        
+        return [rootItem] + list.map { item, level in
             let spacings = Array(repeating: "    ", count: level).joined(separator: "")
             let title = spacings + title(item)
             

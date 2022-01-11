@@ -17,7 +17,7 @@ class OutlineView<Item: DataElement>: NSOutlineView {
     private var contextMenuActions = [String: () -> Void]()
     
     init(items: Data,
-         contextMenu: ((Data.Element, Int, Int) -> [ListItemContextMenu])? = nil) {
+         contextMenu: ContextMenu<Item>? = nil) {
         self.items = items
         self.contextMenu = contextMenu
         super.init(frame: .zero)
@@ -70,7 +70,10 @@ class OutlineView<Item: DataElement>: NSOutlineView {
         guard row > -1 else { return nil }
         
         let item = item(atRow: row) as! Item
-        let contextMenu = contextMenu?(item, row, col) ?? []
+        let childIndex = childIndex(forItem: item)
+        let parent = parent(forItem: item) as? Item
+        let contextMenuInfo = ContextMenuInfo(item: item, parent: parent, childIndex: childIndex, column: col)
+        let contextMenu = contextMenu?(contextMenuInfo) ?? []
         let menu = makeContextMenu(contextMenu: contextMenu, menu: NSMenu(title: ""))
         
         return menu

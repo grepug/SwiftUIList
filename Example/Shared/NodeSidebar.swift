@@ -33,7 +33,7 @@ struct Sidebar: View {
             SwiftUIList($data, selection: $selection, content: { row, col, $item in
                 NodeCell(text: $item.title, emoji: $item.emoji).nsView
             })
-                .contextMenu { item, row, col in
+                .contextMenu { info in
                     [
                         .init(title: "Delete"),
                         .init(title: "Move to")

@@ -7,6 +7,40 @@
 
 import AppKit
 
+public struct ListItemInsertionInfo<Item: DataElement> {
+    public init(prevIds: [Item.ID], ids: [Item.ID]) {
+        self.prevIds = prevIds
+        self.ids = ids
+    }
+    
+    let prevIds: [Item.ID]
+    let ids: [Item.ID]
+    
+    var insertedIndexSet: IndexSet {
+        var indexSet = IndexSet()
+        
+        for change in ids.difference(from: prevIds).steps {
+            switch change {
+            case .insert(_, at: let index):
+                indexSet.insert(index)
+            default: break
+            }
+        }
+        
+        return indexSet
+    }
+}
+
+public struct ListItemRemovalInfo<Item: DataElement> {
+    public init(removed: Bool, index: Int) {
+        self.removed = removed
+        self.index = index
+    }
+    
+    let removed: Bool
+    let index: Int
+}
+
 extension ListViewController {
     private func children(of parent: Item?) -> [Item]? {
         if let parent = parent, let keyPath = childrenKeyPath {
@@ -17,8 +51,6 @@ extension ListViewController {
     }
     
     func operationHandler(operation: ListOperation<Item>, outlineView: OutlineView<Item>) {
-        var oldData = dataSource.items
-        
         switch operation {
         case .reload(data: let data):
             dataSource.items = data
@@ -26,82 +58,10 @@ extension ListViewController {
             outlineView.reloadData()
         case .reloadItem(let item, reloadingChildren: let reloadChildren):
             outlineView.reloadItem(item, reloadChildren: reloadChildren)
-        case .insert(let item, after: let afterItem):
-            let parent: Item?
-            let index: Int
-            
-            if let afterItem = afterItem {
-                parent = outlineView.parent(forItem: afterItem) as? Item
-                index = (children(of: parent) ?? oldData).firstIndex(of: afterItem)! + 1
-            } else {
-                parent = nil
-                index = dataSource.items.endIndex
-            }
-            
-            if let parent = parent, let keyPath = childrenKeyPath {
-                parent[keyPath: keyPath]?.insert(item, at: index)
-            } else {
-                dataSource.items.insert(item, at: index)
-                dataChanged(oldData)
-            }
-            
-            outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
-        case .insertBefore(let item, before: let beforeItem):
-            let parent: Item?
-            let index: Int
-            
-            if let beforeItem = beforeItem {
-                parent = outlineView.parent(forItem: beforeItem) as? Item
-                index = (children(of: parent) ?? oldData).firstIndex(of: beforeItem)! - 1
-            } else {
-                parent = nil
-                index = oldData.endIndex
-            }
-            
-            if let parent = parent, let keyPath = childrenKeyPath {
-                parent[keyPath: keyPath]?.insert(item, at: index)
-            } else {
-                dataSource.items.insert(item, at: index)
-                dataChanged(oldData)
-            }
-            
-            outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
-        case .insert2(let item, offset: let index, parent: let parent):
-            if let parent = parent, let keyPath = childrenKeyPath {
-                parent[keyPath: keyPath]?.insert(item, at: index)
-            } else {
-                dataSource.items.insert(item, at: index)
-                dataChanged(oldData)
-            }
-            
-            outlineView.insertItems(at: [index], inParent: parent, withAnimation: .effectFade)
-        case .insertChild(let item, inParent: let parent):
-            if let parent = parent, let keyPath = childrenKeyPath {
-                parent[keyPath: keyPath] = parent[keyPath: keyPath] ?? []
-                let children = parent[keyPath: keyPath]!
-                parent[keyPath: keyPath]?.insert(item, at: children.endIndex)
-                
-                outlineView.reloadItem(parent, reloadChildren: true)
-                outlineView.expandItem(parent)
-            } else {
-                
-            }
-        case .remove(let item, shouldRemove: let shouldRemove):
-            if shouldRemove {
-                let parent = outlineView.parent(forItem: item) as? Item
-                let index = (children(of: parent) ?? oldData).firstIndex(of: item)!
-                
-                if let parent = parent, let keyPath = childrenKeyPath {
-                    parent[keyPath: keyPath]?.remove(at: index)
-                } else {
-                    oldData.remove(at: index)
-                    dataChanged(oldData)
-                }
-            }
-            
-            let index = outlineView.childIndex(forItem: item)
-            let parent = outlineView.parent(forItem: item)
-
+        case .inserted(let indexSet, parent: let parent):
+            outlineView.insertItems(at: indexSet, inParent: parent, withAnimation: .effectFade)
+            outlineView.expandItem(parent)
+        case .removed(let index, parent: let parent):
             outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
         case .reorder(let items, parent: let parent):
             guard !items.isEmpty else { return }
@@ -129,20 +89,16 @@ extension ListViewController {
             DispatchQueue.main.async {
                 outlineView.expandItem(item, expandChildren: expandChildren)
             }
-        case .move(let item, to: let targetParent):
-            if let parent = outlineView.parent(forItem: item) as? Item {
-                let index = outlineView.childIndex(forItem: item)
-                outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+        case .moved(let index, parent: let parent, toIndex: let toIndex, toParent: let toParent):
+            outlineView.moveItem(at: index, inParent: parent, to: toIndex, inParent: toParent)
+            
+            if let parent = toParent {
+                outlineView.reloadItem(parent)
             } else {
-                let index = outlineView.childIndex(forItem: item)
-                outlineView.removeItems(at: [index], inParent: parent, withAnimation: .effectFade)
+                outlineView.reloadData()
             }
             
-            outlineView.reloadItem(targetParent, reloadChildren: true)
-            
-            DispatchQueue.main.async {
-                outlineView.expandItem(targetParent, expandChildren: false)
-            }
+            outlineView.expandItem(toParent)
         }
     }
 }
