@@ -10,29 +10,29 @@ import SwiftUI
 import Combine
 
 public class ListViewController<Item: DataElement>: NSViewController {
-    typealias Data = [Item]
-    
     let tableView: OutlineView<Item>
     let dataSource: OutlineViewDataSource<Item>
     let delegate: OutlineViewDelegate<Item>
     weak var operationSubject: OperationSubject<Item>?
-    var operationHandler: ((ListOperation<Item>, OutlineView<Item>, OutlineViewDataSource<Item>) -> Void)?
+    var childrenKeyPath: ChildrenKeyPath<Item>?
+    var dataChanged: DataChange<Item>
     
     private var cancellables = Set<AnyCancellable>()
     
-    init(data: Data,
+    init(data: [Item],
          childrenKeyPath: ChildrenKeyPath<Item>?,
          operationSubject: OperationSubject<Item>?,
          contextMenu: ContextMenu<Item>?,
          content: @escaping ListItemContentType<Item>,
          selectionChanged: @escaping SelectionChanged<Item>,
-         items: @escaping () -> Data) {
-        
+         dataChanged: @escaping DataChange<Item>) {
         tableView = OutlineView(items: data, contextMenu: contextMenu)
-        dataSource = .init(items: items, childrenKeyPath: childrenKeyPath)
+        dataSource = .init(childrenKeyPath: childrenKeyPath)
         delegate = .init(content: content,
                          selectionChanged: selectionChanged)
+        self.childrenKeyPath = childrenKeyPath
         self.operationSubject = operationSubject
+        self.dataChanged = dataChanged
         
         super.init(nibName: nil, bundle: nil)
         
@@ -60,11 +60,9 @@ public class ListViewController<Item: DataElement>: NSViewController {
         
         tableView.reloadData()
         
-        operationSubject?
-            .sink { operation in
-                self.operationHandler?(operation, self.tableView, self.dataSource)
+        if childrenKeyPath != nil {
+            setupSubscribers()
         }
-        .store(in: &cancellables)
     }
     
     public override func viewWillAppear() {
@@ -74,14 +72,23 @@ public class ListViewController<Item: DataElement>: NSViewController {
         tableView.sizeLastColumnToFit()
         super.viewWillAppear()
     }
+    
+    func setupSubscribers() {
+        operationSubject?
+            .sink { operation in
+                self.operationHandler(operation: operation,
+                                      outlineView: self.tableView)
+            }
+            .store(in: &cancellables)
+    }
 }
 
 extension ListViewController {
     func updateData(newItems: [Item]) {
-        let oldItems = dataSource.cachedItems
-        dataSource.cachedItems = newItems
+        let oldItems = dataSource.items
+        dataSource.items = newItems
         
-        let diff = newItems.difference(from: oldItems, by: { $0.id == $1.id }).inferringMoves()
+        let diff = newItems.difference(from: oldItems, by: { $0 == $1 })
         
         tableView.beginUpdates()
         

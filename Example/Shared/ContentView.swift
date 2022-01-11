@@ -33,12 +33,18 @@ struct ContentView: View, ListViewOperable {
         VStack(alignment: .leading, spacing: 0) {
             SwiftUIList($data,
                         selection: $selection2,
+                        children: \.children,
                         operationSubject: Self.operations,
-                        rowHeight: 50,
                         content: content)
-                .contextMenu(menu: { row, col, item in
-                    [.init(title: "a") {
-                    }, .init(title: "b")]
+                .contextMenu(menu: { item, row, col in
+                    [.init(title: "添加子节点", action: {
+                        let newItem = Item(title: "7")
+                        insertChild(newItem, inParent: item)
+                    }),
+                     .init(title: "删除", action: {
+                        removeItem(item)
+                    })
+                    ]
                 })
                 .columns([
                     .init(title: "值"),
@@ -51,19 +57,21 @@ struct ContentView: View, ListViewOperable {
                 .onItemChange { row, col, item in
                     print("@@", item)
                 }
+                .onAppear {
+                    reloadList()
+                }
             
             HStack {
                 Button {
                     let newItem = Item(title: "6")
-                    data.append(newItem)
-//                    insertItem(newItem, after: selection2.first)
-//                    becomeFirstResponder(item: newItem, atColumn: 0)
+                    insertItem(newItem, after: selection2.first)
+                    becomeFirstResponder(item: newItem, atColumn: 0)
                 } label: {
                     Image(systemName: "plus")
                 }
                 
                 Button {
-                    data.removeAll(where: { selection2.contains($0) })
+                    selection2.forEach(removeItem)
                 } label: {
                     Image(systemName: "minus")
                 }

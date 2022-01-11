@@ -28,7 +28,7 @@ extension CollectionDifference where ChangeElement: Hashable
     public var steps: Steps {
         guard !isEmpty else { return [] }
         
-        // A mapping to modify insertion indexees
+        // A mapping to modify insertion indexes
         let mapSize = maxOffset + count
         var insertionMap = Array(0 ... mapSize)
         
@@ -58,7 +58,7 @@ extension CollectionDifference where ChangeElement: Hashable
                     
                     // Late removals re-adjust the insertion map by reducing higher indexes
                     insertionMap.indices.forEach {
-                        if insertionMap[$0] >= associatedWith { insertionMap[$0] -= 1} }
+                        if insertionMap[$0] >= associatedWith { insertionMap[$0] -= 1 } }
                     
                     let to = insertionMap[offset]
                     

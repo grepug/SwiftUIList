@@ -8,22 +8,11 @@
 import AppKit
 
 class OutlineViewDataSource<Item: DataElement>: NSObject, NSOutlineViewDataSource {
-    var getItems: (() -> [Item])
-    var cachedItems: [Item] = []
+    var items: [Item] = []
     var childrenKeyPath: ChildrenKeyPath<Item>?
     
-    init(items: @escaping () -> [Item],
-         childrenKeyPath: ChildrenKeyPath<Item>?) {
-        self.getItems = items
+    init(childrenKeyPath: ChildrenKeyPath<Item>?) {
         self.childrenKeyPath = childrenKeyPath
-    }
-    
-    var items: [Item] {
-        if childrenKeyPath == nil {
-            return cachedItems
-        }
-        
-        return getItems()
     }
     
     private func typedItem(_ item: Any) -> Item {

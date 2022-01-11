@@ -15,12 +15,13 @@ public typealias ContextMenu<Item: DataElement> = ((Item, Int, Int) -> [ListItem
 public typealias OperationSubject<Item: DataElement> = PassthroughSubject<ListOperation<Item>, Never>
 public typealias ItemChange<Item: DataElement> = (Int, Int, Item) -> Void
 public typealias ChildrenKeyPath<Item> = ReferenceWritableKeyPath<Item, [Item]?>
+public typealias DataChange<Item> = ([Item]) -> Void
 
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
-public protocol ListItemKind: Hashable, Identifiable {
+public protocol ListItemKind: AnyObject, Hashable, Identifiable {
     
-    associatedtype Child: ListItemKind
+    associatedtype Child: ListItemKind = Self
     
     var children: [Child]? { get set }
     
@@ -38,8 +39,10 @@ public enum ListOperation<Item: DataElement> {
     case insert(Item, after: Item?)
     case insert2(Item, offset: Int, parent: Item?)
     case insertBefore(Item, before: Item?)
+    case insertChild(Item, inParent: Item?)
     case remove(Item)
     case reload(data: [Item])
+    case reloadItem(Item, reloadingChildren: Bool)
     case reorder([Item], parent: Item?)
     case becomeFirstResponder(Item, column: Int)
 }
@@ -76,6 +79,10 @@ public extension ListViewOperable {
     
     func insertItem(_ item: Item, after afterItem: Item?) {
         Self.operations.send(.insert(item, after: afterItem))
+    }
+    
+    func insertChild(_ item: Item, inParent parent: Item? = nil) {
+        Self.operations.send(.insertChild(item, inParent: parent))
     }
     
     func removeItem(_ item: Item) {

@@ -66,7 +66,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
               contextMenu: contextMenu,
               content: content,
               selectionChanged: { selection = $0 },
-              items: { data })
+              dataChanged: { data = $0 })
     }
     
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
@@ -75,15 +75,13 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         
         if childrenKeyPath == nil {
             nsViewController.updateData(newItems: data)
-        } else {
-            nsViewController.dataSource.getItems = { data }
         }
+        
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
         nsViewController.delegate.columns = columns
         nsViewController.delegate.itemChanged = itemChanged
-//        nsViewController.operationHandler = operationHandler
         
         nsViewController.tableView.gridColor = .gridColor
         nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []
