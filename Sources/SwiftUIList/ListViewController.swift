@@ -102,6 +102,9 @@ public class ListViewController<Item: DataElement>: NSViewController {
 extension ListViewController {
     func updateData(newItems: [Item]) {
         let oldItems = dataSource.items
+        
+        guard childrenKeyPath == nil || oldItems.isEmpty else { return }
+        
         dataSource.items = newItems
         
         let diff = newItems.difference(from: oldItems, by: { $0 == $1 })

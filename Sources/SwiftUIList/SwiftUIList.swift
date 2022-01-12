@@ -78,13 +78,8 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     public func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
         nsViewController.delegate.rowHeight = rowHeight
         nsViewController.setupColumns(columns)
-        
-        if childrenKeyPath == nil {
-            nsViewController.updateData(newItems: data)
-        } else {
-            nsViewController.dataSource.items = data
-        }
-        
+        nsViewController.updateData(newItems: data)
+        nsViewController.dataSource.items = data
         nsViewController.changeSelectedItem(to: selection)
         nsViewController.tableView.onDoubleClicked = onDoubleClicked
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors

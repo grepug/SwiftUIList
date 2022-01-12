@@ -88,7 +88,6 @@ struct ContentView: View, ListViewOperable {
                     print("@@", item)
                 }
                 .onAppear {
-                    reloadList()
                     expand()
                 }
             
