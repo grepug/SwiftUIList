@@ -100,13 +100,16 @@ public extension ListViewOperable {
     }
 }
 
-public extension ListViewOperable {
-    func makeMoveToMenu<T>(item: Item,
-                           children: KeyPath<Item, T>,
-                           title: @escaping (Item?) -> String,
-                           action: @escaping (Item?) -> Void) -> [ListItemContextMenu] {
+public protocol MoveToMenuItem: Identifiable {}
+
+public extension MoveToMenuItem {
+    static func makeMoveToMenu<T>(item: Self? = nil,
+                                  items: [Self],
+                                  children: KeyPath<Self, T>,
+                                  title: @escaping (Self?) -> String,
+                                  action: @escaping (Self?) -> Void) -> [ListItemContextMenu] {
         let list = Self.makeMoveToList(fromItem: item,
-                                       children: items(),
+                                       children: items,
                                        childrenKeyPath: children)
         
         let rootItem = ListItemContextMenu(title: title(nil)) {
@@ -123,18 +126,18 @@ public extension ListViewOperable {
         }
     }
     
-    private static func makeMoveToList<T>(fromItem: Item,
-                                  children: [Item],
-                                  childrenKeyPath: KeyPath<Item, T>,
-                                  level: Int = 0) -> [(Item, Int)] {
-        var list = [(Item, Int)]()
+    private static func makeMoveToList<T>(fromItem: Self?,
+                                          children: [Self],
+                                          childrenKeyPath: KeyPath<Self, T>,
+                                          level: Int = 0) -> [(Self, Int)] {
+        var list = [(Self, Int)]()
         
         for item in children {
-            guard item.id != fromItem.id else { continue }
+            guard item.id != fromItem?.id else { continue }
             
             list.append((item, level))
             
-            if let childrenOptional = item[keyPath: childrenKeyPath] as? [Item]?,
+            if let childrenOptional = item[keyPath: childrenKeyPath] as? [Self]?,
                let children = childrenOptional {
                 list.append(contentsOf: makeMoveToList(fromItem: fromItem,
                                                        children: children,

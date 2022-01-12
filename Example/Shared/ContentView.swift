@@ -68,10 +68,11 @@ struct ContentView: View, ListViewOperable {
                         removeItem(info.item, inParent: info.parent, at: info.childIndex)
                     }),
                      .init(title: "Move to",
-                           children: makeMoveToMenu(item: info.item,
-                                                    children: \.children,
-                                                    title: { $0?.title ?? "根节点" },
-                                                    action: { targetItem in
+                           children: Item.makeMoveToMenu(item: info.item,
+                                                         items: items(),
+                                                         children: \.children,
+                                                         title: { $0?.title ?? "根节点" },
+                                                         action: { targetItem in
                         moveItem(info.item, inParent: info.parent, at: info.childIndex, to: targetItem)
                     }))
                     ]
@@ -126,7 +127,7 @@ struct ContentView: View, ListViewOperable {
     }
 }
 
-class Item: DataElement {
+class Item: DataElement, MoveToMenuItem {
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }
