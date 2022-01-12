@@ -44,7 +44,7 @@ public extension ListViewOperable {
         Self.operations.send(.expand(item, expandChildren: item == nil))
     }
     
-    func reloadItem(_ item: Item, reloadingChildren: Bool = false) {
+    func reloadItem(_ item: Item?, reloadingChildren: Bool = false) {
         Self.operations.send(.reloadItem(item, reloadingChildren: reloadingChildren))
     }
     

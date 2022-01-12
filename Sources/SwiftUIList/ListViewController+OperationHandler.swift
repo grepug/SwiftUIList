@@ -53,9 +53,11 @@ extension ListViewController {
     func operationHandler(operation: ListOperation<Item>, outlineView: OutlineView<Item>) {
         switch operation {
         case .reload(data: let data):
+            let selectedRows = outlineView.selectedRowIndexes
             dataSource.items = data
             dataChanged(data)
             outlineView.reloadData()
+            outlineView.selectRowIndexes(selectedRows, byExtendingSelection: false)
         case .reloadItem(let item, reloadingChildren: let reloadChildren):
             outlineView.reloadItem(item, reloadChildren: reloadChildren)
         case .inserted(let indexSet, parent: let parent):
