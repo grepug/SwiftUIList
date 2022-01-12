@@ -13,7 +13,7 @@ public typealias DataElement = Hashable & Identifiable
 public typealias ListItemContentType<Item: DataElement> = (Int, Int, Binding<Item>) -> NSView
 public typealias OperationSubject<Item: DataElement> = PassthroughSubject<ListOperation<Item>, Never>
 public typealias ItemChange<Item: DataElement> = (Int, Int, Item) -> Void
-public typealias ChildrenKeyPath<Item> = ReferenceWritableKeyPath<Item, [Item]?>
+public typealias ChildrenKeyPath<Item> = WritableKeyPath<Item, [Item]?>
 public typealias DataChange<Item> = ([Item]) -> Void
 typealias SelectionChanged<Item: DataElement> = (Set<Item>) -> Void
 
