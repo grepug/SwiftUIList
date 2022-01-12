@@ -4,11 +4,10 @@ import Combine
 
 public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     public typealias NSViewControllerType = ListViewController<Item>
-    public typealias Data = [Item]
     
     @Binding var data: [Item]
     var childrenKeyPath: ChildrenKeyPath<Item>?
-    @Binding var selection: Set<Data.Element>
+    @Binding var selection: Set<Item>
     var contextMenu: ContextMenu<Item>?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Item>
@@ -47,8 +46,8 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         self.scrollViewWrapped = scrollViewWrapped
     }
     
-    public init(_ data: Binding<Data>,
-                selection: Binding<Set<Data.Element>>,
+    public init(_ data: Binding<[Item]>,
+                selection: Binding<Set<Item>>,
                 children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
                 rowHeight: CGFloat? = nil,
