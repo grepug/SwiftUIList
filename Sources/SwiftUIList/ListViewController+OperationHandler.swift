@@ -92,12 +92,8 @@ extension ListViewController {
         case .moved(let index, parent: let parent, toIndex: let toIndex, toParent: let toParent):
             outlineView.moveItem(at: index, inParent: parent, to: toIndex, inParent: toParent)
             
-            if let parent = toParent {
-                outlineView.reloadItem(parent)
-            } else {
-                outlineView.reloadData()
-            }
-            
+            outlineView.reloadItem(toParent)
+            outlineView.reloadItem(parent)
             outlineView.expandItem(toParent)
         }
     }

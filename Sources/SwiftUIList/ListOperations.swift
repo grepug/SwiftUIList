@@ -25,7 +25,7 @@ public protocol ListViewOperable {
     func items() -> [Item]
     func updateView()
     
-    func _remove(item: Item, inParent parent: Item?, at index: Int)
+    func _remove(item: Item, inParent parent: Item?, at index: Int, shouldDelete: Bool)
     func _insert(item: Item, into parent: Item?) -> ListItemInsertionInfo<Item>
     
     static var operations: OperationSubject<Item> { get }
@@ -73,12 +73,12 @@ public extension ListViewOperable {
     }
     
     func removeItem(_ item: Item, inParent parent: Item?, at index: Int) {
-        _remove(item: item, inParent: parent, at: index)
+        _remove(item: item, inParent: parent, at: index, shouldDelete: true)
         Self.operations.send(.removed(index, parent: parent))
     }
     
     func moveItem(_ item: Item, inParent parent: Item?, at index: Int, to targetParent: Item?) {
-        _remove(item: item, inParent: parent, at: index)
+        _remove(item: item, inParent: parent, at: index, shouldDelete: false)
         let info = _insert(item: item, into: targetParent)
 
         DispatchQueue.main.async {
@@ -94,7 +94,7 @@ public extension ListViewOperable {
     }
     
     func becomeFirstResponder(item: Item, atColumn column: Int) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             Self.operations.send(.becomeFirstResponder(item, column: column))
         }
     }

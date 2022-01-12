@@ -11,8 +11,7 @@ import SwiftUIListCell
 import Combine
 
 struct ContentView: View, ListViewOperable {
-
-    func _remove(item: Item, inParent parent: Item?, at index: Int) {
+    func _remove(item: Item, inParent parent: Item?, at index: Int, shouldDelete: Bool) {
         if let parent = parent {
             parent.children?.remove(at: index)
         } else {
@@ -97,7 +96,7 @@ struct ContentView: View, ListViewOperable {
                 Button {
                     let newItem = Item(title: "6")
                     insertItem(newItem, into: nil)
-                    becomeFirstResponder(item: newItem, atColumn: 0)
+                    becomeFirstResponder(item: newItem, atColumn: 1)
                 } label: {
                     Image(systemName: "plus")
                 }
