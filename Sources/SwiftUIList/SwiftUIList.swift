@@ -16,6 +16,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     var usingAlternatingRowBackgroundColors = false
     var drawingRowSeperators = false
     var allowingMultipleSelection = false
+    var allowingEmptySelection = true
     var itemChanged: ItemChange<Item>?
     var operationSubject: OperationSubject<Item>?
     var rowHeight: CGFloat?
@@ -78,6 +79,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         nsViewController.tableView.usesAlternatingRowBackgroundColors = usingAlternatingRowBackgroundColors
         nsViewController.delegate.columns = columns
         nsViewController.delegate.itemChanged = itemChanged
+        nsViewController.tableView.allowsEmptySelection = allowingEmptySelection
         
         nsViewController.tableView.gridColor = .gridColor
         nsViewController.tableView.gridStyleMask = drawingRowSeperators ? .solidHorizontalGridLineMask : []

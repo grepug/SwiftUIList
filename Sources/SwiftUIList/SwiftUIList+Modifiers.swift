@@ -56,4 +56,11 @@ public extension SwiftUIList {
         
         return mutableSelf
     }
+    
+    func allowsEmptySelection(_ allows: Bool) -> Self {
+        var mutableSelf = self
+        mutableSelf.allowingEmptySelection = allows
+        
+        return mutableSelf
+    }
 }
