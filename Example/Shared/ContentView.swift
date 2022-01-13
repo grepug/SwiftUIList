@@ -113,11 +113,11 @@ struct ContentView: View, ListViewOperable {
     
     func content(row: Int, col: Int, item: Binding<Item>) -> NSView {
         switch col {
-        case 0: return TextCell(item.wrappedValue.title,
-                                leadingView: { isSelected in
-            Image(systemName: "plus")
-                .foregroundColor(isSelected ? .white : .accentColor)
-        }).nsView
+        case 0:
+            return LabelCell(object: item.wrappedValue,
+                             text: \.title,
+                             systemImageName: "pencil",
+                             systemImageColor: .red)
         case 1: return TextCell(item.score).nsView
         case 2: return DatePickerCell(date: item.date).nsView
         case 3: return DatePickerCell(date: item.optionalDate).nsView
@@ -127,7 +127,7 @@ struct ContentView: View, ListViewOperable {
     }
 }
 
-class Item: DataElement, MoveToMenuItem {
+class Item: DataElement, MoveToMenuItem, ObservableObject {
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }

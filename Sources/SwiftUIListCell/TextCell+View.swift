@@ -30,14 +30,9 @@ public struct TextCellView: NSViewRepresentable {
     }
     
     public func makeNSView(context: Context) -> NSViewType {
-        let textField = NSViewType(string: text)
+        let textField = NSViewType()
         
         textField.stringValue = text
-        textField.isBezeled = false
-        textField.drawsBackground = false
-        textField.usesSingleLineMode = false
-        textField.cell?.wraps = true
-        textField.cell?.isScrollable = false
         textField.delegate = context.coordinator
         textField.isEditable = canEdit
         textField.isSelectable = canEdit
@@ -100,6 +95,20 @@ public struct TextCellView: NSViewRepresentable {
 
 public class CustomTextField: NSTextField {
     var onDoubleClick: (() -> Void)?
+    
+    init() {
+        super.init(frame: .zero)
+
+        isBezeled = false
+        drawsBackground = false
+        usesSingleLineMode = false
+        cell?.wraps = true
+        cell?.isScrollable = false
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     public override func becomeFirstResponder() -> Bool {
         if super.becomeFirstResponder() {
