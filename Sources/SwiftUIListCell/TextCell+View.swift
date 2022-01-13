@@ -130,4 +130,8 @@ public class CustomTextField: NSTextField {
             onDoubleClick?()
         }
     }
+    
+    public override func rightMouseDown(with event: NSEvent) {
+        nextResponder?.rightMouseDown(with: event)
+    }
 }

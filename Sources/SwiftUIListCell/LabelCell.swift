@@ -12,7 +12,7 @@ import SwiftUI
 public class LabelCell<Object: ObservableObject>: NSTableCellView, NSTextFieldDelegate {
     private var object: Object
     private var textKeyPath: ReferenceWritableKeyPath<Object, String>
-    private lazy var textView = CustomTextField()
+    private lazy var textView = makeTextField()
     private var cancellable: AnyCancellable?
     private var systemImageName: String?
     private var systemImageColor: NSColor? = nil
@@ -93,6 +93,13 @@ public class LabelCell<Object: ObservableObject>: NSTableCellView, NSTextFieldDe
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+    }
+    
+    private func makeTextField() -> CustomTextField {
+        let textField = CustomTextField()
+        textField.delegate = self
+        
+        return textField
     }
     
     public func controlTextDidEndEditing(_ obj: Notification) {
