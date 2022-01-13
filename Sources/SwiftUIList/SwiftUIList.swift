@@ -19,14 +19,12 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     var itemChanged: ItemChange<Item>?
     var operationSubject: OperationSubject<Item>?
     var rowHeight: CGFloat?
-    var scrollViewWrapped: Bool
     
     public init(_ data: Binding<[Item]>,
                 selection: Binding<Item?>,
                 children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
                 rowHeight: CGFloat? = nil,
-                scrollViewWrapped: Bool = true,
                 content: @escaping ListItemContentType<Item>) {
         self._selection = .init {
             if let sel = selection.wrappedValue {
@@ -43,7 +41,6 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         self.operationSubject = operationSubject
         self.childrenKeyPath = childrenKeyPath
         self.rowHeight = rowHeight
-        self.scrollViewWrapped = scrollViewWrapped
     }
     
     public init(_ data: Binding<[Item]>,
@@ -51,7 +48,6 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
                 children childrenKeyPath: ChildrenKeyPath<Item>? = nil,
                 operationSubject: OperationSubject<Item>? = nil,
                 rowHeight: CGFloat? = nil,
-                scrollViewWrapped: Bool = true,
                 content: @escaping ListItemContentType<Item>) {
         self._data = data
         self._selection = selection
@@ -60,7 +56,6 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
         self.operationSubject = operationSubject
         self.childrenKeyPath = childrenKeyPath
         self.rowHeight = rowHeight
-        self.scrollViewWrapped = scrollViewWrapped
     }
     
     public func makeNSViewController(context: Context) -> NSViewControllerType {
@@ -68,7 +63,6 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
               childrenKeyPath: childrenKeyPath,
               operationSubject: operationSubject,
               contextMenu: contextMenu,
-              scrollViewWrapped: scrollViewWrapped,
               content: content,
               selectionChanged: { selection = $0 },
               dataChanged: { data = $0 })
