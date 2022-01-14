@@ -26,7 +26,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
     init(data: [Item],
          childrenKeyPath: ChildrenKeyPath<Item>?,
          operationSubject: OperationSubject<Item>?,
-         contextMenu: ContextMenu<Item>?,
+         contextMenu: ContextMenuHandler<Item>?,
          content: @escaping ListItemContentType<Item>,
          selectionChanged: @escaping SelectionChanged<Item>,
          dataChanged: @escaping DataChange<Item>) {

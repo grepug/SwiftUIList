@@ -30,4 +30,4 @@ public struct ContextMenuInfo<Item: DataElement> {
     public let childIndex: Int
     public let column: Int
 }
-public typealias ContextMenu<Item: DataElement> = (ContextMenuInfo<Item>) -> [ListItemContextMenu]
+public typealias ContextMenuHandler<Item: DataElement> = (ContextMenuInfo<Item>) -> [ContextMenu]

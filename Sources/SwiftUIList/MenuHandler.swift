@@ -17,7 +17,7 @@ public class MenuHandler: NSObject {
         contextMenuActions[id]?()
     }
     
-    private func makeMenuItem(item: ListItemContextMenu) -> NSMenuItem {
+    private func makeMenuItem(item: ContextMenu) -> NSMenuItem {
         let menuItem: NSMenuItem
         
         switch item.kind {
@@ -39,7 +39,7 @@ public class MenuHandler: NSObject {
         return menuItem
     }
     
-    public func makeContextMenu(contextMenu: [ListItemContextMenu], menu: NSMenu = .init()) -> NSMenu {
+    public func makeContextMenu(contextMenu: [ContextMenu], menu: NSMenu = .init()) -> NSMenu {
         for item in contextMenu {
             if let children = item.children {
                 let childMenu = makeContextMenu(contextMenu: children, menu: .init(title: ""))

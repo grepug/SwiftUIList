@@ -11,13 +11,13 @@ class OutlineView<Item: DataElement>: NSOutlineView {
     typealias Data = [Item]
     
     var items: Data
-    var contextMenu: ContextMenu<Item>?
+    var contextMenu: ContextMenuHandler<Item>?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
     private let menuHandler = MenuHandler()
     
     init(items: Data,
-         contextMenu: ContextMenu<Item>? = nil) {
+         contextMenu: ContextMenuHandler<Item>? = nil) {
         self.items = items
         self.contextMenu = contextMenu
         super.init(frame: .zero)

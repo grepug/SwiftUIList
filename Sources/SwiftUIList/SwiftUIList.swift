@@ -8,7 +8,7 @@ public struct SwiftUIList<Item: DataElement>: NSViewControllerRepresentable {
     @Binding var data: [Item]
     var childrenKeyPath: ChildrenKeyPath<Item>?
     @Binding var selection: Set<Item>
-    var contextMenu: ContextMenu<Item>?
+    var contextMenu: ContextMenuHandler<Item>?
     var columns: [ListItemColumn] = [.init(title: "")]
     var content: ListItemContentType<Item>
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?

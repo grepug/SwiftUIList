@@ -107,12 +107,12 @@ public extension MoveToMenuItem {
                                   items: [Self],
                                   children: KeyPath<Self, T>,
                                   title: @escaping (Self?) -> String,
-                                  action: @escaping (Self?) -> Void) -> [ListItemContextMenu] {
+                                  action: @escaping (Self?) -> Void) -> [ContextMenu] {
         let list = Self.makeMoveToList(fromItem: item,
                                        children: items,
                                        childrenKeyPath: children)
         
-        let rootItem = ListItemContextMenu(.title(title(nil))) {
+        let rootItem = ContextMenu(.title(title(nil))) {
             action(nil)
         }
         

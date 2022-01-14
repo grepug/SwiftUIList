@@ -1,5 +1,5 @@
 //
-//  ListItemContextMenu.swift
+//  ContextMenu.swift
 //  
 //
 //  Created by Kai on 2022/1/6.
@@ -7,11 +7,11 @@
 
 import AppKit
 
-public struct ListItemContextMenu {
-    public init(_ kind: ListItemContextMenu.Kind,
+public struct ContextMenu {
+    public init(_ kind: ContextMenu.Kind,
                 keyEquivalent: String = "",
                 action: (() -> Void)? = nil,
-                children: [ListItemContextMenu]? = nil) {
+                children: [ContextMenu]? = nil) {
         self.kind = kind
         self.action = action
         self.children = children
