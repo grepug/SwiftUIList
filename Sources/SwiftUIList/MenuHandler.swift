@@ -35,6 +35,7 @@ public class MenuHandler: NSObject {
                                           action: #selector(handleMenuEvent(_:)),
                                           keyEquivalent: "")
                     menuItem.target = self
+                    menuItem.view = item.view
                     menuItem.identifier = .init(rawValue: item.id)
                 }
                 
