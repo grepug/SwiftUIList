@@ -60,10 +60,7 @@ public class ListViewController<Item: DataElement>: NSViewController {
         super.viewDidLoad()
         
         tableView.reloadData()
-        
-        if childrenKeyPath != nil {
-            setupSubscribers()
-        }
+        setupSubscribers()
     }
     
     public override func viewWillAppear() {
