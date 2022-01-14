@@ -19,6 +19,10 @@ public class ListViewController<Item: DataElement>: NSViewController {
     
     private var cancellables = Set<AnyCancellable>()
     
+    deinit {
+        print("deinit")
+    }
+    
     init(data: [Item],
          childrenKeyPath: ChildrenKeyPath<Item>?,
          operationSubject: OperationSubject<Item>?,
@@ -71,9 +75,12 @@ public class ListViewController<Item: DataElement>: NSViewController {
         super.viewWillAppear()
     }
     
+    
     func setupSubscribers() {
         operationSubject?
-            .sink { operation in
+            .sink { [weak self] operation in
+                guard let self = self else { return }
+                
                 self.operationHandler(operation: operation,
                                       outlineView: self.tableView)
             }
