@@ -14,7 +14,7 @@ class OutlineView<Item: DataElement>: NSOutlineView {
     var contextMenu: ContextMenu<Item>?
     var onDoubleClicked: ((Int, Int, NSView) -> Void)?
     
-    private var contextMenuActions = [String: () -> Void]()
+    private let menuHandler = MenuHandler()
     
     init(items: Data,
          contextMenu: ContextMenu<Item>? = nil) {
@@ -74,7 +74,7 @@ class OutlineView<Item: DataElement>: NSOutlineView {
         let parent = parent(forItem: item) as? Item
         let contextMenuInfo = ContextMenuInfo(item: item, parent: parent, childIndex: childIndex, column: col)
         let contextMenu = contextMenu?(contextMenuInfo) ?? []
-        let menu = makeContextMenu(contextMenu: contextMenu, menu: NSMenu(title: ""))
+        let menu = menuHandler.makeContextMenu(contextMenu: contextMenu)
         
         return menu
     }
@@ -113,46 +113,8 @@ class OutlineView<Item: DataElement>: NSOutlineView {
             setNeedsDisplay(bounds)
         }
     }
-    
-    @objc func handleMenuEvent(_ sender: Any) {
-        let menuItem = sender as! NSMenuItem
-        let id = menuItem.identifier!.rawValue
-        
-        contextMenuActions[id]?()
-    }
 }
 
-private extension OutlineView {
-    func makeContextMenu(contextMenu: [ListItemContextMenu], menu: NSMenu) -> NSMenu {
-        for item in contextMenu {
-            if let children = item.children {
-                let menuItem = NSMenuItem(title: item.title, action: nil, keyEquivalent: "")
-                let childMenu = makeContextMenu(contextMenu: children, menu: .init(title: ""))
-                menuItem.submenu = childMenu
-                
-                menu.addItem(menuItem)
-            } else {
-                let menuItem: NSMenuItem
-                
-                if item.kind == .separator {
-                    menuItem = .separator()
-                } else {
-                    menuItem = NSMenuItem(title: item.title,
-                                          action: #selector(handleMenuEvent(_:)),
-                                          keyEquivalent: "")
-                    menuItem.identifier = .init(rawValue: item.id)
-                }
-                
-                menu.addItem(menuItem)
-                
-                contextMenuActions[item.id] = item.action
-            }
-        }
-        
-        return menu
-    }
-}
-            
 public extension NSView {
     func subviews<T: NSView>(ofType type: T.Type) -> [T] {
         var result = subviews.compactMap { $0 as? T }
