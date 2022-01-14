@@ -8,28 +8,34 @@
 import AppKit
 
 public struct ListItemContextMenu {
-    public init(title: String = "",
-                view: NSView? = nil,
-                kind: ListItemContextMenu.Kind = .menu,
+    public init(_ kind: ListItemContextMenu.Kind,
+                keyEquivalent: String = "",
                 action: (() -> Void)? = nil,
                 children: [ListItemContextMenu]? = nil) {
-        self.title = title
-        self.view = view
         self.kind = kind
         self.action = action
         self.children = children
+        self.keyEquivalent = keyEquivalent
+    }
+    
+    public struct MenuCustomView {
+        public init(_ view: NSView, width: CGFloat, height: CGFloat) {
+            view.frame = .init(x: 0, y: 0, width: width, height: height)
+            self.view = view
+        }
+        
+        let view: NSView
     }
     
     public enum Kind {
-        case menu, separator
+        case title(String), view(MenuCustomView), separator
     }
     
     let id = UUID().uuidString
-    let title: String
-    var view: NSView?
-    var kind: Kind = .menu
+    var keyEquivalent: String
+    var kind: Kind
     var action: (() -> Void)?
     var children: [Self]?
     
-    public static let separator: Self = .init(title: "", kind: .separator)
+    public static let separator: Self = .init(.separator)
 }

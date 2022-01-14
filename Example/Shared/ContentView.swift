@@ -60,21 +60,34 @@ struct ContentView: View, ListViewOperable {
                         operationSubject: Self.operations,
                         content: content)
                 .contextMenu(menu: { info in
-                    [.init(title: "添加子节点", action: {
+                    [.init(.title("添加子节点"), action: {
                         let newItem = Item(title: "7")
                         insertItem(newItem, into: info.item)
                     }),
-                     .init(title: "删除", action: {
+                     .init(.title("删除"), action: {
                         removeItem(info.item, inParent: info.parent, at: info.childIndex)
                     }),
-                     .init(title: "Move to",
+                     .init(.title("Move to"),
                            children: Item.makeMoveToMenu(item: info.item,
                                                          items: items(),
                                                          children: \.children,
                                                          title: { $0?.title ?? "根节点" },
                                                          action: { targetItem in
                         moveItem(info.item, inParent: info.parent, at: info.childIndex, to: targetItem)
-                    }))
+                    })),
+                     .init(.view(.init(NSHostingView(rootView: Color.red),
+                                       width: 150,
+                                       height: 50)),
+                           children: [
+                            .init(.title("hi")) {
+                                
+                            }
+                           ]),
+                     .init(.view(.init(NSHostingView(rootView: Button("hi") {
+                        
+                    }),
+                                       width: 150,
+                                       height: 50)))
                     ]
                 })
                 .columns([

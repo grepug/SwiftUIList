@@ -112,7 +112,7 @@ public extension MoveToMenuItem {
                                        children: items,
                                        childrenKeyPath: children)
         
-        let rootItem = ListItemContextMenu(title: title(nil)) {
+        let rootItem = ListItemContextMenu(.title(title(nil))) {
             action(nil)
         }
         
@@ -120,7 +120,7 @@ public extension MoveToMenuItem {
             let spacings = Array(repeating: "    ", count: level).joined(separator: "")
             let title = spacings + title(item)
             
-            return .init(title: title) {
+            return .init(.title(title)) {
                 action(item)
             }
         }

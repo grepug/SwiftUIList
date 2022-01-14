@@ -17,30 +17,39 @@ public class MenuHandler: NSObject {
         contextMenuActions[id]?()
     }
     
+    private func makeMenuItem(item: ListItemContextMenu) -> NSMenuItem {
+        let menuItem: NSMenuItem
+        
+        switch item.kind {
+        case .title(let title):
+            menuItem = NSMenuItem(title: title,
+                                  action: #selector(handleMenuEvent(_:)),
+                                  keyEquivalent: item.keyEquivalent)
+            menuItem.target = self
+            menuItem.identifier = .init(rawValue: item.id)
+        case .view(let viewConfig):
+            menuItem = NSMenuItem()
+            menuItem.view = viewConfig.view
+            menuItem.target = self
+            menuItem.action = #selector(handleMenuEvent(_:))
+        case .separator:
+            menuItem = .separator()
+        }
+        
+        return menuItem
+    }
+    
     public func makeContextMenu(contextMenu: [ListItemContextMenu], menu: NSMenu = .init()) -> NSMenu {
         for item in contextMenu {
             if let children = item.children {
-                let menuItem = NSMenuItem(title: item.title, action: nil, keyEquivalent: "")
                 let childMenu = makeContextMenu(contextMenu: children, menu: .init(title: ""))
-                menuItem.submenu = childMenu
+                let menuItem = makeMenuItem(item: item)
                 
+                menuItem.submenu = childMenu
                 menu.addItem(menuItem)
             } else {
-                let menuItem: NSMenuItem
-                
-                if item.kind == .separator {
-                    menuItem = .separator()
-                } else {
-                    menuItem = NSMenuItem(title: item.title,
-                                          action: #selector(handleMenuEvent(_:)),
-                                          keyEquivalent: "")
-                    menuItem.target = self
-                    menuItem.view = item.view
-                    menuItem.identifier = .init(rawValue: item.id)
-                }
-                
+                let menuItem = makeMenuItem(item: item)
                 menu.addItem(menuItem)
-                
                 contextMenuActions[item.id] = item.action
             }
         }

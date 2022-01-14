@@ -35,8 +35,8 @@ struct Sidebar: View {
             })
                 .contextMenu { info in
                     [
-                        .init(title: "Delete"),
-                        .init(title: "Move to")
+                        .init(.title("Delete")),
+                        .init(.title("Move to"))
                     ]
                 }
         }
