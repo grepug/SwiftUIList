@@ -101,8 +101,8 @@ public class CustomTextField: NSTextField {
 
         isBezeled = false
         drawsBackground = false
-        usesSingleLineMode = false
-        cell?.wraps = true
+        usesSingleLineMode = true
+        cell?.wraps = false
         cell?.isScrollable = false
     }
     
