@@ -104,6 +104,7 @@ public class CustomTextField: NSTextField {
         usesSingleLineMode = true
         cell?.wraps = false
         cell?.isScrollable = false
+        maximumNumberOfLines = 1
     }
     
     required init?(coder: NSCoder) {

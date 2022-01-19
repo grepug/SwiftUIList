@@ -40,7 +40,12 @@ struct ContentView: View, ListViewOperable {
     
     typealias Item = Example.Item
     
-    @State var data: [Item] = [.init(title: "1xxxxxxxxxxxxx",
+    @State var data: [Item] = [.init(title: """
+let firstSeen = UserDefaults.firstSeen.value
+        let isNotFirstLaunch = UserDefaults.isNotFirstLaunch.value
+        let storedBuild = UserDefaults.storedBuild.value
+        let build = Int(dependencyProvider.globalViewModel.buildNumberString) ?? 0
+""",
                                      children: [.init(title: "2",
                                                       children: [.init(title: "3")])]),
                                .init(title: "a")]
